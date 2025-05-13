@@ -375,7 +375,6 @@ final Map<String, String> amenityImages = {
   'gym': 'assets/gym.png',
 };
 
-
 class AmenitiesSection extends StatelessWidget {
   const AmenitiesSection({super.key});
 
@@ -460,60 +459,31 @@ class AmenitiesSection extends StatelessWidget {
   }
 
   Widget _buildAmenityItem(String title) {
-  return Column(
-    children: [
-      Container(
-        height: 70,
-        width: 100,
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.withOpacity(0.3)),
-          borderRadius: BorderRadius.circular(4),
-          image: DecorationImage(
-            image: AssetImage(
-              amenityImages[title] ?? 'assets/images/placeholder.png',
+    return Column(
+      children: [
+        Container(
+          height: 70,
+          width: 100,
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.withOpacity(0.3)),
+            borderRadius: BorderRadius.circular(4),
+            image: DecorationImage(
+              image: AssetImage(
+                amenityImages[title] ?? 'assets/images/placeholder.png',
+              ),
+              fit: BoxFit.cover,
             ),
-            fit: BoxFit.cover,
           ),
         ),
-      ),
-      const SizedBox(height: 6),
-      Text(
-        title,
-        style: GoogleFonts.outfit(fontSize: 12, color: Color(0xff606062)),
-        textAlign: TextAlign.center,
-      ),
-    ],
-  );
-}
-
-
-  // Widget _buildAmenityItem(String title) {
-  //   return Column(
-  //     children: [
-  //       Container(
-  //         height: 70,
-  //         width: 100,
-  //         decoration: BoxDecoration(
-  //           border: Border.all(color: Colors.grey.withOpacity(0.3)),
-  //           borderRadius: BorderRadius.circular(4),
-
-  //           image: DecorationImage(
-  //             image: NetworkImage(
-  //               'https://via.placeholder.com/100x70/CCCCCC/666666?text=${title.replaceAll(" ", "+")}',
-  //             ),
-  //             fit: BoxFit.cover,
-  //           ),
-  //         ),
-  //       ),
-  //       const SizedBox(height: 6),
-  //       Text(
-  //         title,
-  //         style: GoogleFonts.outfit(fontSize: 12, color: Color(0xff606062)),
-  //         textAlign: TextAlign.center,
-  //       ),
-  //     ],
-  //   );
-  // }
+        const SizedBox(height: 6),
+        Text(
+          title,
+          style: GoogleFonts.outfit(fontSize: 12, color: Color(0xff606062)),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
 }
 
 class MasterplanSection extends StatelessWidget {
