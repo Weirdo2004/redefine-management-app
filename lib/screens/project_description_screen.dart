@@ -41,7 +41,9 @@ class ProjectDescriptionScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 2.0),
                   child: const Icon(Icons.arrow_back),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
             Positioned(

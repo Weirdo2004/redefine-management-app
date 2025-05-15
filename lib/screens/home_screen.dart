@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
         items: [
           BottomNavigationBarItem(
             icon: Image.asset(
-              'assets/icons/home.png', // Replace with your custom icon path
+              'assets/icons/Icon Sets.png', // Replace with your custom icon path
               width: 24,
               height: 24,
               color:
@@ -60,28 +60,28 @@ class _HomeScreenState extends State<HomeScreen> {
             label: "Home",
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.apartment_sharp,
-              color: _selectedIndex == 1 ? Colors.black : Colors.grey,
-            ),
-            // icon: Image.asset(
-            //   'assets/icons/units.png', // Replace with your custom icon path
-            //   width: 24,
-            //   height: 24,
+            // icon: Icon(
+            //   Icons.apartment_sharp,
+            //   color: _selectedIndex == 1 ? Colors.black : Colors.grey,
             // ),
+            icon: Image.asset(
+              'assets/icons/Icon Sets 2.png', // Replace with your custom icon path
+              width: 24,
+              height: 24,
+            ),
             label: "Projects",
           ),
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.person_rounded,
-              color: _selectedIndex == 2 ? Colors.black : Colors.grey,
-            ),
-            // icon: Image.asset(
-            //   'assets/icons/profile.png', // Replace with your custom icon path
-            //   width: 24,
-            //   height: 24,
+            // icon: Icon(
+            //   Icons.person_rounded,
             //   color: _selectedIndex == 2 ? Colors.black : Colors.grey,
             // ),
+            icon: Image.asset(
+              'assets/icons/Icon Sets 3.png', // Replace with your custom icon path
+              width: 24,
+              height: 24,
+              color: _selectedIndex == 2 ? Colors.black : Colors.grey,
+            ),
             label: "Profile",
           ),
         ],
