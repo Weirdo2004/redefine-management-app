@@ -5,6 +5,8 @@ class UnitModel {
   final String due;
   final String? amount;
   final String? daysLeft;
+  // final String status;
+  // final String T_elgible_balance;
 
   UnitModel({
     required this.unit_no,
@@ -13,5 +15,7 @@ class UnitModel {
     required this.due,
     this.amount,
     this.daysLeft,
+    // required this.status,
+    // required this.T_elgible_balance,
   });
 }

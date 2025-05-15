@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../models/unit_model.dart';
+// import '../models/unit_model.dart';
 
 class UnitItem extends StatelessWidget {
   final String projectName;
@@ -63,7 +63,7 @@ class UnitItem extends StatelessWidget {
                             style: GoogleFonts.outfit(fontSize: screenWidth * 0.035),
                           ),
                           Text(
-                            unit['unit_no'],
+                            unit.unit_no,
                             style: GoogleFonts.outfit(
                               fontSize: screenWidth * 0.035,
                               fontWeight: FontWeight.bold,
