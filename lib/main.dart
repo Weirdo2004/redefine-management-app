@@ -51,6 +51,7 @@ class MyApp extends StatelessWidget {
       ),
       initialBinding: BindingsBuilder(() {
         Get.put(AuthService()); // Inject AuthService for authentication management
+
       }),
       initialRoute: "/",
       home: (FirebaseAuth.instance.currentUser!=null)?

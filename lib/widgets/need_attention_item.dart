@@ -121,7 +121,11 @@ class NeedsAttentionItem extends StatelessWidget {
                               horizontal: screenWidth * 0.04,
                             ),
                           ),
-                          onPressed: () => Get.toNamed('/payment-schedule'),
+                          onPressed: ()
+                          {
+
+                          },
+                        //  => Get.toNamed('/payment-schedule'),
                           child: Text(
                             'Pay Now',
                             style: GoogleFonts.outfit(

@@ -57,7 +57,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen> {
             _buildCategory(screenWidth, screenHeight),
             SizedBox(height: screenHeight * 0.03),
 
-          //  _buildUnitDimensions(screenWidth, screenHeight),
+            //_buildUnitDimensions(screenWidth, screenHeight),
             SizedBox(height: screenHeight * 0.03),
             _buildModificationSection(screenWidth),
             SizedBox(height: screenHeight * 0.03),
@@ -318,7 +318,8 @@ Widget _buildNeedsAttentionSection(double screenWidth, double screenHeight) {
         Align(
           alignment: Alignment.centerRight,
           child: TextButton(
-            onPressed: () => Get.toNamed('/needs-attention'),
+            onPressed: () {},
+            //=> Get.toNamed('/needs-attention'),
             child: Text(
               'View all',
               style: TextStyle(
@@ -641,7 +642,8 @@ Widget _buildCategoryItem(double screenWidth, double screenHeight,
       Align(
         alignment: Alignment.centerRight,
         child: TextButton(
-          onPressed: () => Get.toNamed('/documents'),
+          onPressed: (){},
+              //Get.toNamed('/documents'),
           child: Text(
             'View all',
             style: TextStyle(
@@ -688,7 +690,8 @@ Widget _buildTransactionsSection(double screenWidth) {
       Align(
         alignment: Alignment.centerRight,
         child: TextButton(
-          onPressed: () => Get.toNamed('/transactions'),
+          onPressed: () {},
+              //Get.toNamed('/transactions'),
           child: Text(
             'View all',
             style: TextStyle(
