@@ -5,7 +5,7 @@ import '../models/project_model.dart';
 class ProjectCard extends StatelessWidget {
   final ProjectModel project;
 
-  const ProjectCard({required this.project});
+  const ProjectCard({super.key, required this.project});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +26,7 @@ class ProjectCard extends StatelessWidget {
             height:
                 screenHeight * 0.3, // Increased height for better visibility
             decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
-            child: Image.asset(project.image, fit: BoxFit.cover),
+            child: Image.asset('assets/project_new.png', fit: BoxFit.cover),
           ),
 
           SizedBox(
