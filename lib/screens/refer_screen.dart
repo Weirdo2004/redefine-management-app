@@ -4,6 +4,8 @@ import 'package:get/get.dart';
 class ReferScreen extends StatelessWidget {
   final ReferFriendController controller = Get.put(ReferFriendController());
 
+  ReferScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -94,15 +96,17 @@ class ReferScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: screenWidth * 0.03),
-        Obx(() => ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: controller.filteredFriends.length,
-              itemBuilder: (context, index) {
-                final friend = controller.filteredFriends[index];
-                return _FriendListItem(friend: friend, controller: controller);
-              },
-            )),
+        Obx(
+          () => ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: controller.filteredFriends.length,
+            itemBuilder: (context, index) {
+              final friend = controller.filteredFriends[index];
+              return _FriendListItem(friend: friend, controller: controller);
+            },
+          ),
+        ),
       ],
     );
   }
@@ -127,7 +131,7 @@ class _FriendListItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-                    ClipOval(
+          ClipOval(
             child: Image.asset(
               'assets/profile.jpeg',
               width: screenWidth * 0.14,
@@ -195,27 +199,28 @@ class Friend {
 
 class ReferFriendController extends GetxController {
   final searchController = TextEditingController();
-  final friends = <Friend>[
-    Friend(name: 'Steffy', phone: '+91 91234 56789'),
-    Friend(name: 'Angel', phone: '+91 92345 67890'),
-    Friend(name: 'Mark', phone: '+91 93456 78901'),
-    Friend(name: 'John', phone: '+91 94567 89012'),
-    Friend(name: 'Sophia', phone: '+91 95678 90123'),
-    Friend(name: 'David', phone: '+91 96789 01234'),
-    Friend(name: 'Olivia', phone: '+91 97890 12345'),
-    Friend(name: 'Liam', phone: '+91 98901 23456'),
-    Friend(name: 'Emma', phone: '+91 99012 34567'),
-    Friend(name: 'Noah', phone: '+91 90123 45678'),
-    Friend(name: 'Ava', phone: '+91 91234 56789'),
-    Friend(name: 'James', phone: '+91 92345 67890'),
-    Friend(name: 'Isabella', phone: '+91 93456 78901'),
-    Friend(name: 'William', phone: '+91 94567 89012'),
-    Friend(name: 'Mia', phone: '+91 95678 90123'),
-    Friend(name: 'Lucas', phone: '+91 96789 01234'),
-    Friend(name: 'Charlotte', phone: '+91 97890 12345'),
-    Friend(name: 'Henry', phone: '+91 98901 23456'),
-    Friend(name: 'Amelia', phone: '+91 99012 34567'),
-  ].obs;
+  final friends =
+      <Friend>[
+        Friend(name: 'Steffy', phone: '+91 91234 56789'),
+        Friend(name: 'Angel', phone: '+91 92345 67890'),
+        Friend(name: 'Mark', phone: '+91 93456 78901'),
+        Friend(name: 'John', phone: '+91 94567 89012'),
+        Friend(name: 'Sophia', phone: '+91 95678 90123'),
+        Friend(name: 'David', phone: '+91 96789 01234'),
+        Friend(name: 'Olivia', phone: '+91 97890 12345'),
+        Friend(name: 'Liam', phone: '+91 98901 23456'),
+        Friend(name: 'Emma', phone: '+91 99012 34567'),
+        Friend(name: 'Noah', phone: '+91 90123 45678'),
+        Friend(name: 'Ava', phone: '+91 91234 56789'),
+        Friend(name: 'James', phone: '+91 92345 67890'),
+        Friend(name: 'Isabella', phone: '+91 93456 78901'),
+        Friend(name: 'William', phone: '+91 94567 89012'),
+        Friend(name: 'Mia', phone: '+91 95678 90123'),
+        Friend(name: 'Lucas', phone: '+91 96789 01234'),
+        Friend(name: 'Charlotte', phone: '+91 97890 12345'),
+        Friend(name: 'Henry', phone: '+91 98901 23456'),
+        Friend(name: 'Amelia', phone: '+91 99012 34567'),
+      ].obs;
 
   final filteredFriends = <Friend>[].obs;
 
@@ -229,9 +234,13 @@ class ReferFriendController extends GetxController {
     if (query.isEmpty) {
       filteredFriends.assignAll(friends);
     } else {
-      filteredFriends.assignAll(friends.where((friend) =>
-          friend.name.toLowerCase().contains(query.toLowerCase()) ||
-          friend.phone.contains(query)));
+      filteredFriends.assignAll(
+        friends.where(
+          (friend) =>
+              friend.name.toLowerCase().contains(query.toLowerCase()) ||
+              friend.phone.contains(query),
+        ),
+      );
     }
   }
 

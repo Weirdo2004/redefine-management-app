@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../models/unit_model.dart';
+import 'needs_attention_detail_sheet.dart';
 
 class NeedsAttentionItem extends StatelessWidget {
   final UnitModel unit;
   final int index;
+  final VoidCallback? onPayNow;
 
   const NeedsAttentionItem({
     super.key,
     required this.unit,
     required this.index,
+    this.onPayNow,
   });
 
   @override
@@ -19,130 +22,159 @@ class NeedsAttentionItem extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
-      height: screenHeight * 0.19,
-      width: screenWidth,
-      child: Padding(
-        padding: const EdgeInsets.only(left: 6.0, right: 6.0),
-        child: Card(
-          color: Colors.white, // Set background color to white
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero,
-          ), // Sharp edges
-          margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
-          child: Padding(
-            padding: EdgeInsets.all(screenWidth * 0.03),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // First row: Unit number and digit in one row
-                Row(
-                  children: [
-                    Container(
-                      width: screenWidth * 0.06,
-                      height: screenWidth * 0.06,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: Colors.black, // Background black
-                        shape: BoxShape.circle,
-                        border: Border.all(color: Colors.black),
-                      ),
-                      child: Text(
-                        '${index + 1}'.padLeft(2, '0'),
-                        style: GoogleFonts.outfit(
-                          fontSize: screenWidth * 0.03,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white, // Text white
+      margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      clipBehavior: Clip.hardEdge,
+      child: Row(
+        children: [
+          // Left Strip
+          Container(
+            width: 30,
+            height: 120, // Approx height to match content
+            color: Colors.black,
+            alignment: Alignment.center,
+            child: const RotatedBox(
+              quarterTurns: 3,
+              child: Text(
+                "DUE",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  color: Colors.white,
+                  fontSize: 10,
+                  letterSpacing: 1.2,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          // Middle Content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'UNIT NO: ${unit.unit_no}',
+                        style: TextStyle(
+                          fontFamily: 'Host Grotesk',
+                          fontWeight: FontWeight.w600,
+                          fontSize: screenWidth * 0.035,
+                          color: Color(0xff191B1C),
                         ),
                       ),
-                    ),
-                    SizedBox(width: screenWidth * 0.02),
-                    Text(
-                      'UNIT NO: ${unit.unit_no}',
-                      style: GoogleFonts.outfit(
-                        fontWeight: FontWeight.w500,
-                        fontSize: screenWidth * 0.03,
-                        color: Color(0xff191B1C),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: screenHeight * 0.01),
-
-                // Second row: Description
-                Text(
-                  'Clear your Outstanding amount for Legal charges of',
-                  style: GoogleFonts.outfit(
-                    fontSize: screenWidth * 0.035,
-                    color: Color(0xff656567),
-                    fontWeight: FontWeight.w400,
+                      // Icon(Icons.info_outline, size: 16, color: Colors.grey),
+                    ],
                   ),
-                ),
-                SizedBox(height: screenHeight * 0.008),
-
-                // Third row: Price on left, Due date & Pay Now button on right
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
+                  SizedBox(height: 8),
+                  Text(
+                    'Clear your Outstanding amount for Legal charges',
+                    style: TextStyle(
+                      fontFamily: 'Host Grotesk',
+                      fontSize: screenWidth * 0.032,
+                      color: Color(0xff656567),
+                      height: 1.3,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 12),
+                  const Divider(height: 1),
+                  SizedBox(height: 8),
+                  GestureDetector(
+                    onTap: () {
+                      Get.bottomSheet(
+                        NeedsAttentionDetailSheet(unit: unit),
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                      );
+                    },
+                    child: Row(
                       children: [
-                        Text(
-                          '₹${unit.amount}',
-                          style: GoogleFonts.outfit(
-                            color: Color(0xff191B1C),
-                            fontWeight: FontWeight.w600,
-                            fontSize: screenWidth * 0.045,
+                        Flexible(
+                          child: Text(
+                            NumberFormat.currency(
+                              locale: 'en_IN',
+                              symbol: '₹',
+                              decimalDigits: 0,
+                            ).format(
+                              double.tryParse(
+                                    unit.amount?.replaceAll(',', '') ?? '0',
+                                  ) ??
+                                  0,
+                            ),
+                            style: TextStyle(
+                              fontFamily: 'Host Grotesk',
+                              color: Color(0xff191B1C),
+                              fontWeight: FontWeight.bold,
+                              fontSize: screenWidth * 0.04,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        SizedBox(width: screenWidth * 0.02),
-                        Text(
-                          'Due in ${unit.daysLeft} days',
-                          style: GoogleFonts.outfit(
-                            color: Color(0xff960000),
-                            fontSize: screenWidth * 0.025,
-                            fontWeight: FontWeight.w500,
+                        SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.red[50],
+                            borderRadius: BorderRadius.circular(2),
+                          ),
+                          child: Text(
+                            'Due in ${unit.daysLeft} days',
+                            style: TextStyle(
+                              fontFamily: 'Host Grotesk',
+                              color: Colors.red[700],
+                              fontSize: 10,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    Container(
-                      height: screenHeight * 0.045,
-                      width: screenHeight * 0.14,
-                      child: Padding(
-                        padding: const EdgeInsets.only(top: 4.0),
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Color(
-                              0xFFEDE9FE,
-                            ), // Lavender background
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.zero,
-                            ), // Sharp corners
-                            padding: EdgeInsets.symmetric(
-                              horizontal: screenWidth * 0.04,
-                            ),
-                          ),
-                          onPressed: ()
-                          {
-
-                          },
-                        //  => Get.toNamed('/payment-schedule'),
-                          child: Text(
-                            'Pay Now',
-                            style: GoogleFonts.outfit(
-                              fontSize: screenWidth * 0.035,
-                              fontWeight: FontWeight.w600,
-                              color: Color(0xff191B1C), // Text black
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
+
+          // Vertical Divider
+          Container(width: 1, height: 120, color: Colors.grey[300]),
+
+          // Right Action Panel
+          GestureDetector(
+            onTap: onPayNow,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              color: Colors.transparent, // Ensure clickable area
+              child: Row(
+                children: [
+                  Text(
+                    "Pay Now",
+                    style: TextStyle(
+                      fontFamily: "Host Grotesk",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF8B6B43), // Accent color
+                    ),
+                  ),
+                  SizedBox(width: 4),
+                  Icon(Icons.chevron_right, size: 18, color: Color(0xFF8B6B43)),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

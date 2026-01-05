@@ -1,4 +1,4 @@
-package com.example.customerapp
+package com.redefine.customerapp
 
 import io.flutter.embedding.android.FlutterActivity
 

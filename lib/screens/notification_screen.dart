@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../utils/project_style.dart';
 import '../utils/responsive.dart';
 
 class NotificationsScreen extends StatelessWidget {
@@ -11,125 +11,82 @@ class NotificationsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: unused_local_variable
     final screenWidth = MediaQuery.of(context).size.width;
+    // ignore: unused_local_variable
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: _buildAppBar(screenWidth, screenHeight),
+      backgroundColor: ProjectStyle.backgroundColor,
+      appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: screenHeight * 0.35,
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.transparent,
-                      Colors.grey.shade400,
-                      Colors.transparent,
-                    ],
-                  ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: ProjectStyle.pagePadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              // Main content
+              Container(
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildPermissionSection(),
+                    SizedBox(height: 20),
+                    _buildNotificationOption(
+                      title: 'Payment Due',
+                      description: 'Never miss a payment',
+                      isSelected: paymentDueSelected,
+                    ),
+                    SizedBox(height: 10),
+                    _buildNotificationOption(
+                      title: 'Offers and Discounts',
+                      description:
+                          'Save more with special offers and discounts',
+                      isSelected: offersAndDiscountsSelected,
+                    ),
+                    SizedBox(height: 30),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(height: screenWidth * 0.04),
-            // Main content
-            Container(
-              color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildPermissionSection(screenWidth, screenHeight),
-                  SizedBox(height: screenHeight * 0.02),
-                  _buildNotificationOption(
-                    title: 'Payment Due',
-                    description: 'Never miss a payment',
-                    isSelected: paymentDueSelected,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                  ),
-                  SizedBox(height: screenHeight * 0.01),
-                  _buildNotificationOption(
-                    title: 'Offers and Discounts',
-                    description: 'Save more with special offers and discounts',
-                    isSelected: offersAndDiscountsSelected,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                  ),
-                  // Add more notification options here as needed
-                  SizedBox(height: screenHeight * 0.03),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      // bottomNavigationBar: BottomNavigationBar(
-      //   currentIndex: 2,
-      //   selectedItemColor: Colors.black,
-      //   unselectedItemColor: Colors.black,
-      //   items: const [
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.home),
-      //       label: 'Home',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.list),
-      //       label: 'Units',
-      //     ),
-      //     BottomNavigationBarItem(
-      //       icon: Icon(Icons.person),
-      //       label: 'Profile',
-      //     ),
-      //   ],
-      //   onTap: (index) {
-      //     if (index == 0) Get.offAllNamed('/home');
-      //     if (index == 1) Get.offAllNamed('/project-detail');
-      //   },
-      // ),
     );
   }
 
-  PreferredSizeWidget _buildAppBar(double screenWidth, double screenHeight) {
+  PreferredSizeWidget _buildAppBar() {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: ProjectStyle.appbarbackgroundColor,
       elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back_outlined, color: ProjectStyle.iconColor),
         onPressed: () => Get.back(),
       ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Notifications',
-            style: GoogleFonts.outfit(
-              color: Colors.black,
-              fontSize: Responsive.getFontSize(screenWidth, 24),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      title: Text(
+        'Notifications',
+        style: ProjectStyle.headlineText.copyWith(fontSize: 24),
       ),
     );
   }
 
-  Widget _buildPermissionSection(double screenWidth, double screenHeight) {
+  Widget _buildPermissionSection() {
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.05,
-        vertical: screenHeight * 0.02,
+        horizontal: ProjectStyle.internalPadding,
+        vertical: 10,
       ),
       child: Text(
         'PERMISSION',
-        style: GoogleFonts.outfit(
-          fontSize: Responsive.getFontSize(screenWidth, 16),
+        style: TextStyle(
+          fontFamily: ProjectStyle.fontFamily,
+          fontSize: 16,
           fontWeight: FontWeight.w500,
           color: Color(0xff606062),
         ),
@@ -141,15 +98,10 @@ class NotificationsScreen extends StatelessWidget {
     required String title,
     required String description,
     required RxBool isSelected,
-    required double screenWidth,
-    required double screenHeight,
   }) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.04),
-      padding: EdgeInsets.symmetric(
-        horizontal: screenWidth * 0.04,
-        vertical: screenHeight * 0.02,
-      ),
+      margin: EdgeInsets.symmetric(horizontal: ProjectStyle.internalPadding),
+      padding: EdgeInsets.all(ProjectStyle.internalPadding),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.grey.shade300),
       ),
@@ -162,17 +114,19 @@ class NotificationsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.outfit(
-                    fontSize: Responsive.getFontSize(screenWidth, 20),
+                  style: TextStyle(
+                    fontFamily: ProjectStyle.fontFamily,
+                    fontSize: 20,
                     fontWeight: FontWeight.w500,
-                    color: Color(0xff191B1C),
+                    color: ProjectStyle.primaryTextColor,
                   ),
                 ),
-                SizedBox(height: screenHeight * 0.005),
+                SizedBox(height: 5),
                 Text(
                   description,
-                  style: GoogleFonts.outfit(
-                    fontSize: Responsive.getFontSize(screenWidth, 16),
+                  style: TextStyle(
+                    fontFamily: ProjectStyle.fontFamily,
+                    fontSize: 16,
                     color: Color(0xff606062),
                     fontWeight: FontWeight.w400,
                   ),
@@ -186,18 +140,14 @@ class NotificationsScreen extends StatelessWidget {
                 isSelected.toggle();
               },
               child: Container(
-                height: screenHeight * 0.03,
-                width: screenHeight * 0.03,
+                height: 24,
+                width: 24,
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.black, width: 1),
                 ),
                 child:
                     isSelected.value
-                        ? Icon(
-                          Icons.check,
-                          size: screenHeight * 0.02,
-                          color: Colors.black,
-                        )
+                        ? Icon(Icons.check, size: 18, color: Colors.black)
                         : null,
               ),
             ),

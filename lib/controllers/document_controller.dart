@@ -1,7 +1,7 @@
+import 'package:customerapp/models/document_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../models/document_model.dart';
 import 'package:file_picker/file_picker.dart';
 
 class DocumentsController extends GetxController {
@@ -21,7 +21,7 @@ class DocumentsController extends GetxController {
         name: 'Land Agreement',
         date: '12/12/2025',
         fileSize: '0.300 KB',
-        icon: Icons.description, // Icon instead of image
+        icon_outline: Icons.description_outlined, // Icon instead of image
       ),
     ]);
 
@@ -30,7 +30,8 @@ class DocumentsController extends GetxController {
         name: 'Main Contract',
         date: '15/12/2025',
         fileSize: '1.2 MB',
-        icon: Icons.article, // Different icon for different types
+        icon_outline:
+            Icons.article_outlined, // Different icon for different types
       ),
     ]);
   }
@@ -57,9 +58,12 @@ class DocumentsController extends GetxController {
 
   void sortDocuments(String value) {
     sortValue.value = value;
-    documents.sort((a, b) => value == 'Latest' 
-        ? b.date.compareTo(a.date) 
-        : a.date.compareTo(b.date));
+    documents.sort(
+      (a, b) =>
+          value == 'Latest'
+              ? b.date.compareTo(a.date)
+              : a.date.compareTo(b.date),
+    );
   }
 
   void showDocumentOptions(DocumentModel document) {

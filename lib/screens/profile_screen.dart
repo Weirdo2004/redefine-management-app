@@ -2,15 +2,23 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../utils/project_style.dart';
 import '../utils/responsive.dart';
+import '../services/auth_service.dart';
+import '../controllers/home_controller.dart';
 
 class ProfileController extends GetxController {
   final socialMediaLinks =
       [
-        SocialMedia(icon: Icons.call, url: 'https://wa.me/919123456780'),
-        SocialMedia(icon: Icons.camera, url: 'https://instagram.com'),
-        SocialMedia(icon: Icons.book, url: 'https://facebook.com'),
+        SocialMedia(
+          icon: Icons.call_outlined,
+          url: 'https://wa.me/919123456780',
+        ),
+        SocialMedia(
+          icon: Icons.camera_alt_outlined,
+          url: 'https://instagram.com',
+        ),
+        SocialMedia(icon: Icons.book_outlined, url: 'https://facebook.com'),
         SocialMedia(
           icon: Icons.one_x_mobiledata_outlined,
           url: 'https://twitter.com',
@@ -30,6 +38,7 @@ class ProfileScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: ProjectStyle.backgroundColor,
       appBar: _buildAppBar(screenWidth, screenHeight),
       body: SingleChildScrollView(
         child: Column(
@@ -56,14 +65,18 @@ class ProfileScreen extends StatelessWidget {
             // Main content
             Container(
               color: Colors.white,
-              padding: EdgeInsets.all(screenWidth * 0.04),
+              padding: EdgeInsets.symmetric(
+                horizontal: ProjectStyle.pagePadding,
+                vertical: 20,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildProfileSection(screenWidth, screenHeight),
+                  SizedBox(height: 20),
                   Center(
                     child: Container(
-                      width: screenHeight * 0.4,
+                      width: double.infinity,
                       height: 1,
                       decoration: BoxDecoration(color: Colors.grey.shade300),
                     ),
@@ -83,27 +96,28 @@ class ProfileScreen extends StatelessWidget {
 
   PreferredSizeWidget _buildAppBar(double screenWidth, double screenHeight) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: ProjectStyle.appbarbackgroundColor,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.black),
-        onPressed: () {},
+        icon: Icon(Icons.arrow_back_outlined, color: ProjectStyle.iconColor),
+        onPressed: () {
+          Get.find<HomeController>().changeTabIndex(0);
+        },
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             'My Profile',
-            style: GoogleFonts.outfit(
-              color: Colors.black,
-              fontSize: Responsive.getFontSize(screenWidth, 24),
-              fontWeight: FontWeight.w600,
-            ),
+            style: ProjectStyle.headlineText.copyWith(fontSize: 24),
           ),
           // Text(
-          //   'Shuba Ecostone - 131',
-          //   style: GoogleFonts.outfit(
+          //   'Test Project - 131',
+          //   style: TextStyle(
+          //     fontFamily: ProjectStyle.fontFamily,
           //     color: Color(0xff606062),
-          //     fontSize: Responsive.getFontSize(screenWidth, 16),
+          //     fontSize: 16,
           //     fontWeight: FontWeight.w400,
           //   ),
           // ),
@@ -115,14 +129,14 @@ class ProfileScreen extends StatelessWidget {
   Widget _buildProfileSection(double screenWidth, double screenHeight) {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.all(screenHeight * 0.02),
+      padding: EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
           CircleAvatar(
-            radius: screenHeight * 0.035,
+            radius: 35,
             backgroundImage: AssetImage('assets/profile.jpeg'),
           ),
-          SizedBox(width: screenWidth * 0.04),
+          SizedBox(width: 16),
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -133,16 +147,18 @@ class ProfileScreen extends StatelessWidget {
                   children: [
                     Text(
                       'VISHAL KUMAR',
-                      style: GoogleFonts.outfit(
-                        color: Colors.black,
-                        fontSize: Responsive.getFontSize(screenWidth, 20),
+                      style: TextStyle(
+                        fontFamily: ProjectStyle.fontFamily,
+                        color: ProjectStyle.primaryTextColor,
+                        fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Text(
                       'Joined on 29, Nov 2050',
-                      style: GoogleFonts.outfit(
-                        fontSize: Responsive.getFontSize(screenWidth, 14),
+                      style: TextStyle(
+                        fontFamily: ProjectStyle.fontFamily,
+                        fontSize: 14,
                         color: Color(0xff656567),
                         fontWeight: FontWeight.w400,
                       ),
@@ -152,7 +168,7 @@ class ProfileScreen extends StatelessWidget {
                 Align(
                   alignment: Alignment.centerRight,
                   child: IconButton(
-                    icon: Icon(Icons.edit, size: screenHeight * 0.025),
+                    icon: Icon(Icons.edit_outlined, size: 20),
                     onPressed: () {},
                   ),
                 ),
@@ -166,14 +182,12 @@ class ProfileScreen extends StatelessWidget {
 
   Widget _buildSectionTitle(String title, double screenHeight) {
     return Padding(
-      padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02, horizontal: screenHeight * 0.007),
+      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 4),
       child: Text(
         title,
-        style: GoogleFonts.outfit(
-          fontSize: Responsive.getFontSize(
-            MediaQuery.of(Get.context!).size.width,
-            14,
-          ),
+        style: TextStyle(
+          fontFamily: ProjectStyle.fontFamily,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: Color(0xff656567),
         ),
@@ -197,31 +211,34 @@ class ProfileScreen extends StatelessWidget {
       itemBuilder:
           (context, index) => Card(
             color: Colors.white,
-            elevation: 1,
+            elevation:
+                0, // Flat design as per request style (CostSheet etc seems flat)
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.zero,
+              borderRadius: BorderRadius.circular(8),
               side: BorderSide(color: Colors.black, width: 0.5),
             ),
             child: ListTile(
               title: Text(
                 options[index]['title']!,
-                style: GoogleFonts.outfit(
-                  fontSize: Responsive.getFontSize(screenWidth, 18),
+                style: TextStyle(
+                  fontFamily: ProjectStyle.fontFamily,
+                  fontSize: 16,
                   fontWeight: FontWeight.w400,
                   color: Color(0xff191B1C),
                 ),
               ),
               subtitle: Text(
                 options[index]['desc']!,
-                style: GoogleFonts.outfit(
-                  fontSize: Responsive.getFontSize(screenWidth, 14),
+                style: TextStyle(
+                  fontFamily: ProjectStyle.fontFamily,
+                  fontSize: 12,
                   color: Color(0xff9FA0A1),
                   fontWeight: FontWeight.w400,
                 ),
               ),
               trailing: Icon(
                 Icons.arrow_forward_ios,
-                size: screenHeight * 0.02,
+                size: 14,
                 color: Color(0xff191B1C),
               ),
               onTap: () => _handleAccountOption(options[index]['title']!),
@@ -248,7 +265,7 @@ class ProfileScreen extends StatelessWidget {
           // "Shuba" Logo
           Center(
             child: Image.asset(
-              'assets/shubha.png',
+              'assets/logo1.png',
               width: shubaFontSize * 6,
               fit: BoxFit.contain,
             ),
@@ -257,7 +274,8 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(height: screenWidth * 0.03),
           Text(
             "address",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
               color: Colors.white,
               fontSize: titleSize,
               fontWeight: FontWeight.w600,
@@ -269,7 +287,8 @@ class ProfileScreen extends StatelessWidget {
           // Address
           Text(
             "#1,HSR Sector 1, Bangalore, Karnataka-560049",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
               color: Color(0xff737576),
               fontSize: fontSize,
               fontWeight: FontWeight.w600,
@@ -284,7 +303,8 @@ class ProfileScreen extends StatelessWidget {
             onTap: () => _openMap(address),
             child: Text(
               "View in Map",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: ProjectStyle.fontFamily,
                 color: Color(0xff737576),
                 fontSize: fontSize,
                 fontWeight: FontWeight.w400,
@@ -298,7 +318,8 @@ class ProfileScreen extends StatelessWidget {
           // Contact Info
           Text(
             "Contact Us",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
               color: Colors.white,
               fontSize: titleSize,
               fontWeight: FontWeight.w600,
@@ -309,7 +330,8 @@ class ProfileScreen extends StatelessWidget {
 
           Text(
             "+91 1234567890 || www.shubaexample.com",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
               color: Color(0xff737576),
               fontSize: fontSize,
               fontWeight: FontWeight.w400,
@@ -321,7 +343,8 @@ class ProfileScreen extends StatelessWidget {
 
           Text(
             "our website",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
               color: Colors.white,
               fontSize: titleSize,
               fontWeight: FontWeight.w600,
@@ -333,7 +356,8 @@ class ProfileScreen extends StatelessWidget {
           // Report
           Text(
             "Report",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
               color: Colors.white,
               fontSize: titleSize,
               fontWeight: FontWeight.w600,
@@ -344,7 +368,8 @@ class ProfileScreen extends StatelessWidget {
           Center(
             child: Text(
               "connect with us",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: ProjectStyle.fontFamily,
                 color: Color(0xff737576),
                 fontSize: titleSize,
                 fontWeight: FontWeight.w600,
@@ -401,7 +426,7 @@ class ProfileScreen extends StatelessWidget {
       case 'Logout':
         _confirmLogout();
         break;
-        case 'Notification':
+      case 'Notification':
         Get.toNamed('/notification');
         break;
       // Add other cases
@@ -411,12 +436,41 @@ class ProfileScreen extends StatelessWidget {
   void _confirmLogout() {
     Get.defaultDialog(
       title: 'Logout',
-      content: Text('Are you sure you want to logout?'),
-      confirm: TextButton(
-        onPressed: () => Get.offAllNamed('/login'),
-        child: Text('Yes'),
+      titleStyle: TextStyle(
+        fontFamily: ProjectStyle.fontFamily,
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
       ),
-      cancel: TextButton(onPressed: () => Get.back(), child: Text('No')),
+      middleText: 'Are you sure you want to logout?',
+      middleTextStyle: TextStyle(
+        fontFamily: ProjectStyle.fontFamily,
+        fontSize: 14,
+      ),
+      confirm: TextButton(
+        onPressed: () async {
+          await Get.find<AuthService>().signOut();
+          Get.offAllNamed('/login');
+        },
+        child: Text(
+          'Yes',
+          style: TextStyle(
+            fontFamily: ProjectStyle.fontFamily,
+            color: Colors.red,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      cancel: TextButton(
+        onPressed: () => Get.back(),
+        child: Text(
+          'No',
+          style: TextStyle(
+            fontFamily: ProjectStyle.fontFamily,
+            color: Colors.black,
+          ),
+        ),
+      ),
+      radius: 0,
     );
   }
 

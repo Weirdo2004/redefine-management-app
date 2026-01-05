@@ -5,6 +5,8 @@ import '../controllers/about_controller.dart';
 class AboutScreen extends StatelessWidget {
   final AboutController _controller = Get.put(AboutController());
 
+  AboutScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -33,16 +35,18 @@ class AboutScreen extends StatelessWidget {
   PreferredSizeWidget _buildAppBar(double screenWidth, double screenHeight) {
     return AppBar(
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, size: screenHeight * 0.025),
+        icon: Icon(Icons.arrow_back_outlined, size: screenHeight * 0.025),
         onPressed: () => Get.back(),
       ),
       title: Column(
         children: [
-          Text('My Profile',
-              style: TextStyle(
-                fontSize: screenHeight * 0.022,
-                fontWeight: FontWeight.bold,
-              )),
+          Text(
+            'My Profile',
+            style: TextStyle(
+              fontSize: screenHeight * 0.022,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ],
       ),
     );
@@ -53,7 +57,7 @@ class AboutScreen extends StatelessWidget {
       color: Colors.white,
       elevation: 2,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.zero, // Sharp corners
+        borderRadius: BorderRadius.circular(8), // Rounded corners
       ),
       child: Padding(
         padding: EdgeInsets.all(screenHeight * 0.02),
@@ -68,21 +72,25 @@ class AboutScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('VISHAL KUMAR',
-                      style: TextStyle(
-                        fontSize: screenHeight * 0.02,
-                        fontWeight: FontWeight.bold,
-                      )),
-                  Text('Joined on 29, Nov 2050',
-                      style: TextStyle(
-                        fontSize: screenHeight * 0.016,
-                        color: Colors.grey,
-                      )),
+                  Text(
+                    'VISHAL KUMAR',
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.02,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    'Joined on 29, Nov 2050',
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.016,
+                      color: Colors.grey,
+                    ),
+                  ),
                 ],
               ),
             ),
             IconButton(
-              icon: Icon(Icons.edit, size: screenHeight * 0.025),
+              icon: Icon(Icons.edit_outlined, size: screenHeight * 0.025),
               onPressed: () {},
             ),
           ],
@@ -111,7 +119,7 @@ class AboutScreen extends StatelessWidget {
         decoration: InputDecoration(
           labelText: label,
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.zero, // Sharp corners
+            borderRadius: BorderRadius.circular(8), // Sharp corners
           ),
           filled: true,
           fillColor: Colors.white, // White background for fields
@@ -129,7 +137,7 @@ class AboutScreen extends StatelessWidget {
         decoration: InputDecoration(
           labelText: 'Email',
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.zero, // Sharp corners
+            borderRadius: BorderRadius.circular(8), // Sharp corners
           ),
           filled: true,
           fillColor: Colors.white, // White background for fields
@@ -148,7 +156,7 @@ class AboutScreen extends StatelessWidget {
           backgroundColor: Color(0xFFD8BFD8), // Light Lavender
           padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.zero, // Sharp corners
+            borderRadius: BorderRadius.circular(8), // Sharp corners
           ),
         ),
         onPressed: _controller.saveProfile,
@@ -165,25 +173,27 @@ class AboutScreen extends StatelessWidget {
   }
 
   Widget _buildBottomNavBar(double screenWidth, double screenHeight) {
-    return Obx(() => BottomNavigationBar(
-          currentIndex: _controller.currentNavIndex.value,
-          onTap: _controller.changeNavIndex,
-          selectedItemColor: Colors.black, // Black icons
-          unselectedItemColor: Colors.black, // Black text
-          items: [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home, size: screenHeight * 0.03),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.apartment, size: screenHeight * 0.03),
-              label: 'Units',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person, size: screenHeight * 0.03),
-              label: 'Profile',
-            ),
-          ],
-        ));
+    return Obx(
+      () => BottomNavigationBar(
+        currentIndex: _controller.currentNavIndex.value,
+        onTap: _controller.changeNavIndex,
+        selectedItemColor: Colors.black, // Black icons
+        unselectedItemColor: Colors.black, // Black text
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_outlined, size: screenHeight * 0.03),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.apartment_outlined, size: screenHeight * 0.03),
+            label: 'Units',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person_outlined, size: screenHeight * 0.03),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
   }
 }

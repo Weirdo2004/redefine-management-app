@@ -25,7 +25,11 @@ class ProjectCard extends StatelessWidget {
             width: screenWidth * 0.45,
             height:
                 screenHeight * 0.3, // Increased height for better visibility
-            decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            clipBehavior: Clip.hardEdge,
             child: Image.asset('assets/project_new.png', fit: BoxFit.cover),
           ),
 
@@ -54,7 +58,7 @@ class ProjectCard extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Icon(
-                      Icons.location_on,
+                      Icons.location_on_outlined,
                       color: Colors.grey,
                       size: screenWidth * 0.04,
                     ),
@@ -84,10 +88,8 @@ class ProjectCard extends StatelessWidget {
                           horizontal: screenWidth * 0.035,
                         ),
                         decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.black,
-                          ), // Black border
-                          // borderRadius: BorderRadius.circular(5),
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(8),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,

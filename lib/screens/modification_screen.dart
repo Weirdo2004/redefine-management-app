@@ -3,10 +3,15 @@ import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/modification_controller.dart';
-import '../models/quick_action_model.dart';
+import '../controllers/project_controller.dart';
+import '../widgets/quick_actions_section.dart';
+
+import '../utils/project_style.dart';
 
 class ModificationScreen extends StatelessWidget {
   final ModificationController _controller = Get.put(ModificationController());
+
+  ModificationScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,9 +19,15 @@ class ModificationScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: _buildAppBar(screenWidth, screenHeight),
+      backgroundColor: ProjectStyle.backgroundColor,
+      appBar: _buildAppBar(context),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(screenWidth * 0.04),
+        padding: EdgeInsets.fromLTRB(
+          ProjectStyle.pagePadding,
+          ProjectStyle.pagePadding,
+          ProjectStyle.pagePadding,
+          ProjectStyle.pagePadding + MediaQuery.of(context).padding.bottom,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -30,299 +41,226 @@ class ModificationScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildAppBar(double screenWidth, double screenHeight) {
+  PreferredSizeWidget _buildAppBar(BuildContext context) {
     return AppBar(
+      backgroundColor: ProjectStyle.appbarbackgroundColor,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, size: screenHeight * 0.025),
+        icon: const Icon(Icons.arrow_back, color: ProjectStyle.iconColor),
         onPressed: () => Get.back(),
       ),
-      title: Column(
-        children: [
-          Text('Modification',
-              style: TextStyle(
-                fontSize: screenHeight * 0.022,
-                fontWeight: FontWeight.bold,
-              )),
-          Text('Shuba Ecostone - 131',
-              style: TextStyle(
-                fontSize: screenHeight * 0.016,
-              )),
-        ],
+      titleSpacing: 0,
+      title: Transform.translate(
+        offset: const Offset(-8, 0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Modification', style: ProjectStyle.titleText),
+            const SizedBox(height: 2),
+            Text(
+              'Test Project - 131',
+              style: ProjectStyle.smallText.copyWith(fontSize: 12),
+            ),
+          ],
+        ),
       ),
-      centerTitle: true,
+      // centerTitle: true, // Removed centerTitle as we are custom aligning
     );
   }
 
   Widget _buildTopModifications(double screenWidth, double screenHeight) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        'TOP MODIFICATIONS',
-        style: TextStyle(
-          fontSize: screenHeight * 0.018,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      SizedBox(height: screenHeight * 0.01),
-      SizedBox(
-        height: screenHeight * 0.08, // Adjusted height
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: _controller.categories.length,
-          itemBuilder: (context, index) => _buildCategoryItem(
-            screenWidth,
-            screenHeight,
-            _controller.categories[index],
-            () => _controller.selectedCategoryIndex.value = index,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('TOP MODIFICATIONS', style: ProjectStyle.sectionHeaderText),
+        const SizedBox(height: 10),
+        SizedBox(
+          height: 60, // Fixed height for consistency
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: _controller.categories.length,
+            itemBuilder:
+                (context, index) => _buildCategoryItem(
+                  _controller.categories[index],
+                  () => _controller.selectedCategoryIndex.value = index,
+                ),
           ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 
-Widget _buildCategoryItem(
-    double screenWidth, double screenHeight, Map<String, dynamic> category, VoidCallback onTap) {
-  return GestureDetector(
-    onTap: onTap,
-    child: IntrinsicWidth( // Makes width dynamic based on content
+  Widget _buildCategoryItem(Map<String, dynamic> category, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        margin: EdgeInsets.only(right: screenWidth * 0.02),
-        padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.03),
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: ProjectStyle.surfaceColor,
+          borderRadius: BorderRadius.circular(8),
         ),
+        alignment: Alignment.center,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(category['icon'], size: screenHeight * 0.03, color: Colors.black), // Icon on left
-            SizedBox(width: screenWidth * 0.02),
+            Icon(category['icon'], size: 20, color: ProjectStyle.iconColor),
+            const SizedBox(width: 8),
             Text(
               category['label'],
-              style: TextStyle(
-                fontSize: screenHeight * 0.016,
+              style: ProjectStyle.bodyText.copyWith(
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
               ),
             ),
           ],
         ),
       ),
-    ),
-  );
-}
-
+    );
+  }
 
   Widget _buildDescriptionSection(double screenWidth, double screenHeight) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      SizedBox(height: screenHeight * 0.02),
-      Text(
-        'DESCRIPTION',
-        style: TextStyle(
-          fontSize: screenHeight * 0.018,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
-      SizedBox(height: screenHeight * 0.01),
-      TextField(
-        controller: _controller.descriptionController,
-        maxLines: 5,
-        decoration: InputDecoration(
-          hintText: 'Describe your specification',
-          filled: true,
-          fillColor: Colors.white,
-          border: InputBorder.none, // Removed the black border
-          contentPadding: EdgeInsets.all(screenHeight * 0.015),
-        ),
-      ),
-      SizedBox(height: screenHeight * 0.02),
-      Row(
-        children: [
-          Row(
-            children: [
-              Icon(Icons.attach_file, size: screenHeight * 0.02, color: Colors.black),
-              SizedBox(width: screenWidth * 0.01),
-              TextButton(
-                onPressed: _attachReference,
-                child: Text(
-                  'Attach reference',
-                  style: TextStyle(
-                    fontSize: screenHeight * 0.018,
-                    decoration: TextDecoration.underline,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: ProjectStyle.sectionSpacing * 2),
+        const Text('DESCRIPTION', style: ProjectStyle.sectionHeaderText),
+        const SizedBox(height: 10),
+        TextField(
+          controller: _controller.descriptionController,
+          maxLines: 5,
+          style: ProjectStyle.bodyText,
+          decoration: InputDecoration(
+            hintText: 'Describe your specification',
+            hintStyle: ProjectStyle.bodyText.copyWith(color: Colors.grey),
+            filled: true,
+            fillColor: ProjectStyle.surfaceColor,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.all(ProjectStyle.internalPadding),
           ),
-          Spacer(),
-          Container(
-            padding: EdgeInsets.symmetric(
-              vertical: screenHeight * 0.012, 
-              horizontal: screenWidth * 0.05,
-            ),
-            decoration: BoxDecoration(
-              color: Colors.purple[100], // Light lavender
-            ),
-            child: GestureDetector(
-              onTap: _submitModification,
-              child: Text(
-                'Submit',
-                style: TextStyle(
-                  fontSize: screenHeight * 0.018,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.black,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    ],
-  );
-}
-
-
-  Widget _buildHelpDeskSection(double screenWidth, double screenHeight) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Heading outside the card
-      Text(
-        'HELP DESK',
-        style: TextStyle(
-          fontSize: screenHeight * 0.018,
-          fontWeight: FontWeight.bold,
-          color: Colors.black,
         ),
-      ),
-      SizedBox(height: screenHeight * 0.01), // Small spacing
-
-      // Rectangular Help Desk Card
-      Container(
-        color: Colors.white, // White background
-        padding: EdgeInsets.all(screenHeight * 0.02),
-        margin: EdgeInsets.only(bottom: screenHeight * 0.015),
-        child: Row(
+        const SizedBox(height: 16),
+        Row(
           children: [
-            CircleAvatar(
-              radius: screenHeight * 0.03,
-              backgroundImage: AssetImage('assets/profile.jpeg'),
-            ),
-            SizedBox(width: screenWidth * 0.04),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            InkWell(
+              onTap: _attachReference,
+              child: Row(
                 children: [
-                  Text(
-                    'Rohit',
-                    style: TextStyle(
-                      fontSize: screenHeight * 0.018,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  const Icon(
+                    Icons.attach_file,
+                    size: 20,
+                    color: ProjectStyle.iconColor,
                   ),
+                  const SizedBox(width: 8),
                   Text(
-                    'CRM Executive',
-                    style: TextStyle(
-                      fontSize: screenHeight * 0.016,
-                      color: Colors.grey,
-                    ),
-                  ),
-                  Text(
-                    '+91 91234 56789',
-                    style: TextStyle(
-                      fontSize: screenHeight * 0.016,
-                      fontWeight: FontWeight.bold, // Bold contact number
-                      color: Colors.black, // Black color for contact number
+                    'Attach reference',
+                    style: ProjectStyle.bodyText.copyWith(
+                      decoration: TextDecoration.underline,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                 ],
               ),
             ),
-            SizedBox(width: screenWidth * 0.02), // Spacing before button
-            OutlinedButton(
-              onPressed: _contactHelpDesk,
-              style: OutlinedButton.styleFrom(
-                side: BorderSide(color: Colors.black), // Black border
-                foregroundColor: Colors.black, // Black text
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.04, // Adjust width
-                  vertical: screenHeight * 0.015, // Adjust height
-                ),
+            const Spacer(),
+            ElevatedButton(
+              onPressed: _submitModification,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: ProjectStyle.primaryTextColor, // Black button
+                foregroundColor: Colors.white,
+                elevation: 0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.zero, // Rectangular shape
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
                 ),
               ),
               child: Text(
-                'Contact',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold, // Bold text
+                'Submit',
+                style: ProjectStyle.bodyText.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
           ],
         ),
-      ),
-    ],
-  );
-}
-
-Widget _buildQuickActionsSection(double screenWidth, double screenHeight) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: screenHeight * 0.015),
-          child: Text(
-            'QUICK ACTIONS',
-            style: TextStyle(
-              fontSize: screenHeight * 0.02,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-        Obx(() => ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _controller.quickActions.length,
-          itemBuilder: (context, index) => _buildQuickActionItem(
-            screenWidth,
-            screenHeight,
-            _controller.quickActions[index],
-          ),
-        )),
       ],
     );
   }
 
-  Widget _buildQuickActionItem(double screenWidth, double screenHeight, QuickActionModel action) {
-    return Container(
-      margin: EdgeInsets.all(screenWidth*0.01),
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.black),
-      ),
-      child: ListTile(
-        title: Text(action.title,
-            style: TextStyle(
-              fontSize: screenHeight * 0.018,
-              fontWeight: FontWeight.bold,
-            )),
-        subtitle: Text(action.description,
-            style: TextStyle(
-              fontSize: screenHeight * 0.015,
-              color: Colors.grey,
-            )),
-        trailing: Icon(Icons.arrow_forward_ios, 
-            size: screenHeight * 0.02),
-        onTap: () => _handleQuickAction(action.title),
-      ),
+  Widget _buildHelpDeskSection(double screenWidth, double screenHeight) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: ProjectStyle.sectionSpacing * 2),
+        const Text('HELP DESK', style: ProjectStyle.sectionHeaderText),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.all(ProjectStyle.internalPadding),
+          decoration: BoxDecoration(
+            color: ProjectStyle.surfaceColor,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Row(
+            children: [
+              const CircleAvatar(
+                radius: 24,
+                backgroundImage: AssetImage('assets/profile.jpeg'),
+              ),
+              const SizedBox(width: ProjectStyle.gapMedium),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Rohit', style: ProjectStyle.titleText),
+                    const SizedBox(height: 4),
+                    Text(
+                      'CRM Executive',
+                      style: ProjectStyle.smallText.copyWith(
+                        color: Colors.grey[600],
+                        fontSize: 13,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    const Text('+91 91234 56789', style: ProjectStyle.bodyText),
+                  ],
+                ),
+              ),
+              OutlinedButton(
+                onPressed: _contactHelpDesk,
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: ProjectStyle.primaryTextColor,
+                  side: const BorderSide(color: ProjectStyle.primaryTextColor),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                child: Text(
+                  'Contact',
+                  style: ProjectStyle.bodyText.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
-  void _handleQuickAction(String action) {
-    // Implement navigation logic
+  Widget _buildQuickActionsSection(double screenWidth, double screenHeight) {
+    // Ensure ProjectController is found (assuming it's alive from previous screen)
+    final ProjectController projectController = Get.find<ProjectController>();
+
+    return QuickActionsSection(actions: projectController.quickActions);
   }
 
   void _attachReference() async {
@@ -331,15 +269,36 @@ Widget _buildQuickActionsSection(double screenWidth, double screenHeight) {
 
   void _submitModification() {
     if (_controller.descriptionController.text.isEmpty) {
-      Get.snackbar('Error', 'Please enter description');
+      Get.snackbar(
+        'Error',
+        'Please enter description',
+        backgroundColor: Colors.red.withOpacity(0.1),
+        colorText: Colors.red,
+      );
       return;
     }
     // Implement submission logic
     Get.dialog(
       AlertDialog(
-        title: Text('Success'),
-        content: Text('Modification request submitted'),
-        actions: [TextButton(onPressed: Get.back, child: Text('OK'))],
+        backgroundColor: ProjectStyle.surfaceColor,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        title: const Text('Success', style: ProjectStyle.titleText),
+        content: const Text(
+          'Modification request submitted',
+          style: ProjectStyle.bodyText,
+        ),
+        actions: [
+          TextButton(
+            onPressed: Get.back,
+            child: const Text(
+              'OK',
+              style: TextStyle(
+                color: ProjectStyle.primaryTextColor,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -350,5 +309,4 @@ Widget _buildQuickActionsSection(double screenWidth, double screenHeight) {
       await launch(url);
     }
   }
-
 }

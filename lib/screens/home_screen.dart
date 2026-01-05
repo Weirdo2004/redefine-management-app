@@ -1,15 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:customerapp/screens/projects_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+
+import 'package:carousel_slider/carousel_slider.dart'; // Added dependency
+import 'package:lottie/lottie.dart';
 import '../controllers/home_controller.dart';
-import '../widgets/need_attention_item.dart';
-import '../widgets/summary_item.dart';
+
+import '../widgets/stat_tile.dart'; // New widget
 import '../widgets/unit_item.dart';
-import '../widgets/project_card.dart';
+import '../widgets/story_view.dart'; // New widget
 import '../utils/responsive.dart';
+import 'my_units_screen.dart';
 import 'profile_screen.dart';
+import 'refer_and_earn_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -20,436 +24,419 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final HomeController _controller = Get.put(HomeController());
-  int _selectedIndex = 0;
 
   final List<Widget> _pages = [
     HomeContent(),
-    ProjectsScreen(),
-
-    ProfileScreen(),
+    MyUnitsScreen(),
+    ReferAndEarnScreen(),
+    ProfileScreen(), // This is now "Account"
   ];
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: _pages[_selectedIndex], // Shows selected page
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        selectedItemColor: Colors.black, // Active tab color
-        unselectedItemColor: Colors.grey, // Inactive tab color
-        selectedLabelStyle: GoogleFonts.outfit(color: Color(0xff646768)),
-        unselectedLabelStyle: GoogleFonts.outfit(color: Color(0xff646768)),
-        items: [
-          BottomNavigationBarItem(
-            icon: Image.asset(
-              'assets/icons/Icon Sets.png', // Replace with your custom icon path
-              width: 24,
-              height: 24,
-              color:
-                  _selectedIndex == 0
-                      ? Colors.black
-                      : Colors.grey, // Dynamic color change
+    return Obx(
+      () => Scaffold(
+        backgroundColor: Color(0xfff5f5f5),
+        body: _pages[_controller.selectedIndex.value],
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Top hairline divider
+            Container(
+              height: 0.5, // key difference
+              color: Colors.black.withOpacity(0.12),
             ),
-            label: "Home",
-          ),
-          BottomNavigationBarItem(
-            // icon: Icon(
-            //   Icons.apartment_sharp,
-            //   color: _selectedIndex == 1 ? Colors.black : Colors.grey,
-            // ),
-            icon: Image.asset(
-              'assets/icons/Icon Sets 2.png', // Replace with your custom icon path
-              width: 24,
-              height: 24,
+
+            // Actual bottom nav
+            Container(
+              color: Colors.white,
+              padding: const EdgeInsets.only(top: 6),
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                ),
+                child: BottomNavigationBar(
+                  elevation: 0,
+                  backgroundColor: Colors.white,
+                  currentIndex: _controller.selectedIndex.value,
+                  onTap: _controller.changeTabIndex,
+                  type: BottomNavigationBarType.fixed,
+                  selectedItemColor: Colors.black,
+                  unselectedItemColor: Colors.grey,
+                  selectedLabelStyle: TextStyle(
+                    fontFamily: 'Host Grotesk',
+                    fontSize: 14,
+                  ),
+                  unselectedLabelStyle: TextStyle(
+                    fontFamily: 'Host Grotesk',
+                    fontSize: 14,
+                  ),
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/Icon Sets.png',
+                        width: 22,
+                        color:
+                            _controller.selectedIndex.value == 0
+                                ? Colors.black
+                                : Colors.grey,
+                      ),
+                      label: "Home",
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/units.png',
+                        width: 22,
+                        color:
+                            _controller.selectedIndex.value == 1
+                                ? Colors.black
+                                : Colors.grey,
+                      ),
+                      label: "My Units",
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Icon(Icons.card_giftcard_outlined),
+                      label: "Refer & Earn",
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Image.asset(
+                        'assets/icons/Icon Sets 3.png',
+                        width: 22,
+                        color:
+                            _controller.selectedIndex.value == 3
+                                ? Colors.black
+                                : Colors.grey,
+                      ),
+                      label: "Account",
+                    ),
+                  ],
+                ),
+              ),
             ),
-            label: "Projects",
-          ),
-          BottomNavigationBarItem(
-            // icon: Icon(
-            //   Icons.person_rounded,
-            //   color: _selectedIndex == 2 ? Colors.black : Colors.grey,
-            // ),
-            icon: Image.asset(
-              'assets/icons/Icon Sets 3.png', // Replace with your custom icon path
-              width: 24,
-              height: 24,
-              color: _selectedIndex == 2 ? Colors.black : Colors.grey,
-            ),
-            label: "Profile",
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-// Separate Widget for Home Page Content
-class HomeContent extends StatelessWidget {
-  final HomeController _controller = Get.find<HomeController>();
+class HomeContent extends StatefulWidget {
+  const HomeContent({super.key});
 
+  @override
+  State<HomeContent> createState() => _HomeContentState();
+}
+
+class _HomeContentState extends State<HomeContent> {
+  final HomeController _controller = Get.find<HomeController>();
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        leading: Padding(
-          padding: EdgeInsets.all(screenWidth * 0.02), // Dynamic padding
-          child: ClipOval(
-            child: Image.asset(
-              'assets/home_profile.png', // Replace with your actual image path
-              width: screenWidth * 0.1, // Dynamic width
-              height:
-                  screenWidth *
-                  0.1, // Ensuring a square aspect ratio for a perfect circle
-              fit:
-                  BoxFit
-                      .cover, // Ensures the image fully covers the circular shape
-            ),
-          ),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Good Morning...!',
-              style: GoogleFonts.outfit(
-                color: Colors.black,
-                fontSize: Responsive.getFontSize(screenWidth, 20),
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-            Text(
-              'Nithesh',
-              style: GoogleFonts.outfit(
-                color: Colors.black,
-                fontSize: Responsive.getFontSize(screenWidth, 28),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          // 1. Top Carousel Section
+          HomeCarousel(), // Replaced _buildCarouselSection usage
 
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: screenHeight * 0.35,
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.transparent,
-                      Colors.grey.shade400,
-                      Colors.transparent,
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          SizedBox(height: 20),
 
-            Container(
-              color: Colors.grey[100],
-              child: SingleChildScrollView(
-                padding: EdgeInsets.all(
-                  Responsive.getPadding(screenWidth).horizontal * 0.35,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 2. Discover the World / Summary Section
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _buildSummarySection(screenWidth),
-                    SizedBox(height: screenHeight * 0.03),
-                    _buildNeedsAttentionSection(screenWidth, screenHeight),
-                    _buildMyUnitsSection(screenWidth, screenHeight),
-                    SizedBox(height: screenHeight * 0.03),
-                    _buildUpcomingProjectsSection(screenWidth, screenHeight),
+                    Text(
+                      "DISCOVER THE LUXURY WITH ",
+                      style: TextStyle(
+                        fontFamily: 'Host Grotesk',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[600],
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                    Image.asset(
+                      'assets/logo1.png',
+                      height: 14, // Match font size
+                      fit: BoxFit.contain,
+                      color: Colors.grey[600],
+                    ),
                   ],
                 ),
-              ),
-            ),
+                SizedBox(height: 3),
+                Text(
+                  "Summary", // Matching reference text style
+                  style: TextStyle(
+                    fontFamily: 'Host Grotesk',
+                    fontSize: 18,
+                    //fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 10),
+                _buildSummarySection(screenWidth),
 
-            // ✅ Footer now outside the padding
-            _buildFooterSection(screenWidth),
-          ],
-        ),
+                SizedBox(height: 20),
+
+                // 3. My Units Section
+                Text(
+                  "MADE FOR EFFORTLESS STAYS",
+                  style: TextStyle(
+                    fontFamily: 'Host Grotesk',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "My Units", // Matching reference header style
+                      style: TextStyle(
+                        fontFamily: 'Host Grotesk',
+                        fontSize: 18,
+                        //fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 8),
+                _buildMyUnitsSection(screenWidth, screenHeight),
+
+                SizedBox(height: 20),
+
+                // 4. Other Properties (Stories)
+                Text(
+                  "EXPLORE MORE",
+                  style: TextStyle(
+                    fontFamily: 'Host Grotesk',
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[600],
+                    letterSpacing: 1.2,
+                  ),
+                ),
+                SizedBox(height: 3),
+                Text(
+                  "Our other Properties",
+                  style: TextStyle(
+                    fontFamily: 'Host Grotesk',
+                    fontSize: 18,
+                    //fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                SizedBox(height: 10),
+                _buildStoriesSection(screenWidth, screenHeight),
+
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+          // Footer
+          _buildFooterSection(screenWidth),
+        ],
       ),
     );
   }
 
   Widget _buildSummarySection(double screenWidth) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 16.0, left: 6.0),
-          child: Text(
-            'SUMMARY ACROSS UNIT',
-            style: GoogleFonts.outfit(
-              fontSize: Responsive.getFontSize(screenWidth, 14),
-              fontWeight: FontWeight.w500,
-              color: Color(0xff656567),
-            ),
-          ),
-        ),
-        SizedBox(height: screenWidth * 0.05),
-        Row(
-          children:
-              _controller.summaryData
-                  .map(
-                    (item) => Expanded(
-                      child: SummaryItem(
-                        value: item['value']!,
-                        label: item['label']!,
-                        screenWidth: screenWidth,
-                      ),
-                    ),
-                  )
-                  .toList(),
-        ),
-      ],
-    );
-  }
+    // Futuristic minimal tiles
+    return SizedBox(
+      height: 85,
+      child: Obx(
+        () => ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: _controller.summaryData.length,
+          itemBuilder: (context, index) {
+            final item = _controller.summaryData[index];
+            return Padding(
+              padding: const EdgeInsets.only(right: 10.0),
 
-  Widget _buildNeedsAttentionSection(double screenWidth, double screenHeight) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0, left: 6.0),
-          child: Text(
-            'NEEDS ATTENTION',
-            style: GoogleFonts.outfit(
-              fontSize: Responsive.getFontSize(screenWidth, 14),
-              color: Color(0xff656567),
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.01),
-        ListView.builder(
-          shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
-          itemCount: _controller.attentionItems.length,
-          itemBuilder:
-              (context, index) => NeedsAttentionItem(
-                unit: _controller.attentionItems[index],
-                index: index,
+              child: SizedBox(
+                width: screenWidth * 0.36, // Card width
+                child: StatTile(
+                  label: item['label']!,
+                  value: item['value']!,
+                  screenWidth: screenWidth,
+                ),
               ),
-        ),
-        Align(
-          alignment: Alignment.centerRight,
-          child: TextButton(
-            onPressed: () {},
-                //Get.toNamed('/needs-attention'),
-            child: Text(
-              'View all',
-              style: GoogleFonts.outfit(
-                color: Color(0xff585A5C),
-                fontSize: Responsive.getFontSize(screenWidth, 13),
-                fontWeight: FontWeight.w600,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-
-  Widget _buildMyUnitsSection(double screenWidth, double screenHeight) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 8.0, left: 6.0),
-          child: Text(
-            'MY UNITS',
-            style: GoogleFonts.outfit(
-              fontSize: Responsive.getFontSize(screenWidth, 14),
-              fontWeight: FontWeight.w500,
-              color: Color(0xff656567),
-            ),
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.01),
-        StreamBuilder<QuerySnapshot>(
-          stream: FirebaseFirestore.instance
-              .collection('spark_customers')
-              .where('id', isEqualTo: 'DVJOJBnpv8bCDI4b0AWjpRL21gI3')
-              .snapshots(),
-          builder: (context, customerSnapshot) {
-            if (customerSnapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
-
-            if (!customerSnapshot.hasData || customerSnapshot.data!.docs.isEmpty) {
-              return Center(child: Text("No customer data found"));
-            }
-
-// Get customer document
-
-            final customerDoc = customerSnapshot.data!.docs.first;
-
-            final List<String> unitIds = List<String>.from(customerDoc['my_assets']);
-            final List<String> projectIds=List<String>.from(customerDoc['projects']);
-
-            if (unitIds.isEmpty) {
-              return Center(child: Text("No units found in assets"));
-            }
-
-            return FutureBuilder<List<Map<String, dynamic>>>(
-              future: _fetchUnitsWithProjects(unitIds, projectIds),
-              builder: (context, unitSnapshot) {
-                if (unitSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                }
-
-                if (!unitSnapshot.hasData || unitSnapshot.data!.isEmpty) {
-                  return Center(child: Text("No matching units found"));
-                }
-
-                final unitsWithProjects = unitSnapshot.data!;
-
-                return Column(
-                  children: unitsWithProjects.map((entry) {
-                    DocumentSnapshot unitDoc = entry['unit'];
-                    String projectName = entry['projectName'];
-
-                    return UnitItem(
-                      unit: unitDoc,
-                      projectName: projectName,
-                    );
-                  }).toList(),
-                );
-              },
             );
-
           },
         ),
-
-
-
-
-
-/* ListView.builder(
-shrinkWrap: true,
-physics: NeverScrollableScrollPhysics(),
-itemCount: _controller.myUnits.length,
-itemBuilder:
-(context, index) => UnitItem(unit: _controller.myUnits[index]),
-),*/
-// Align(
-// alignment: Alignment.centerRight,
-// child: TextButton(
-// onPressed: () => Get.toNamed('/my-units'),
-// child: Text(
-// 'View all',
-// style: GoogleFonts.outfit(
-// color: Color(0xff585A5C),
-// fontSize: Responsive.getFontSize(screenWidth, 13),
-// fontWeight: FontWeight.w600,
-// decoration: TextDecoration.underline,
-// ),
-// ),
-// ),
-// ),
-      ],
+      ),
     );
   }
 
-  Widget _buildUpcomingProjectsSection(
-    double screenWidth,
-    double screenHeight,
-  ) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 6.0, top: 16),
-          child: Text(
-            'UPCOMING PROJECTS',
-            style: GoogleFonts.outfit(
-              fontSize: Responsive.getFontSize(screenWidth, 13),
-              fontWeight: FontWeight.w500,
-              color: Color(0xff656567),
-            ),
-          ),
-        ),
-        SizedBox(height: screenHeight * 0.02),
+  Widget _buildMyUnitsSection(double screenWidth, double screenHeight) {
+    const String unitPath = '/spark_units/NQ1GGynwiDg58BD1kKPv';
 
-        // 🔥 Ensuring proper height for scrolling
-        SizedBox(
-          height:
-              screenHeight *
-              0.45, // Adjust height dynamically to prevent overflow
-          child: PageView.builder(
-            controller: PageController(
-              initialPage: 0,
-              viewportFraction: 0.48, // Ensures 2 items fit properly
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance.doc(unitPath).snapshots(),
+      builder: (context, unitSnapshot) {
+        if (unitSnapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Lottie.asset(
+              'assets/Loading Dots Blue.json',
+              height: 200,
+              width: 200,
             ),
-            itemCount: _controller.projects.length,
-            physics: BouncingScrollPhysics(), // Smooth scrolling
-            padEnds: false, // 🔥 THIS REMOVES SPACE AT THE START/END 🔥
-            itemBuilder: (context, index) {
-              return Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: screenWidth * 0.01,
-                ), // Adjust spacing between items
-                child: ProjectCard(project: _controller.projects[index]),
+          );
+        }
+
+        if (!unitSnapshot.hasData || !unitSnapshot.data!.exists) {
+          return Center(
+            child: Container(
+              padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text("Unit not found."),
+            ),
+          );
+        }
+
+        final unitDoc = unitSnapshot.data!;
+        final data = unitDoc.data() as Map<String, dynamic>?;
+
+        if (data == null) return SizedBox();
+
+        String? projectId = data['project_id'];
+
+        return FutureBuilder<DocumentSnapshot?>(
+          future:
+              projectId != null
+                  ? FirebaseFirestore.instance
+                      .collection('spark_projects')
+                      .doc(projectId)
+                      .get()
+                  : Future.value(null),
+          builder: (context, projectSnapshot) {
+            String projectName = 'Unknown Project';
+
+            if (projectSnapshot.hasData &&
+                projectSnapshot.data != null &&
+                projectSnapshot.data!.exists) {
+              projectName =
+                  projectSnapshot.data!.get('projectName') ?? 'Unknown Project';
+            }
+
+            return Column(
+              children: [UnitItem(unit: unitDoc, projectName: projectName)],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildStoriesSection(double screenWidth, double screenHeight) {
+    return SizedBox(
+      height: screenHeight * 0.5,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: _controller.stories.length,
+        itemBuilder: (context, index) {
+          final story = _controller.stories[index];
+          return GestureDetector(
+            onTap: () {
+              // Open Story View
+              Get.to(
+                () => StoryView(
+                  title: story['title'] as String,
+                  videoUrl: story['videoUrl'] as String,
+                  thumbnail: story['thumbnail'] as String,
+                  address: story['address'] as String,
+                ),
               );
             },
-          ),
-        ),
-      ],
+            child: Container(
+              width: screenWidth * 0.77,
+              margin: EdgeInsets.only(right: 7),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8), // Rounded corners
+                image: DecorationImage(
+                  image: AssetImage(story['thumbnail'] as String),
+                  fit: BoxFit.cover,
+                  colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.1),
+                    BlendMode.darken,
+                  ),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 5,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    bottom: 10,
+                    left: 10,
+                    right: 10,
+                    child: Text(
+                      story['title'] as String,
+                      style: TextStyle(
+                        fontFamily: 'Host Grotesk',
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
   Widget _buildFooterSection(double screenWidth) {
     double fontSize = Responsive.getFontSize(screenWidth, 16);
-    double iconSize = screenWidth * 0.075; // Icons scale with screen width
+    double iconSize = screenWidth * 0.075;
     double titleSize = Responsive.getFontSize(screenWidth, 20);
     double shubaFontSize = Responsive.getFontSize(screenWidth, 28);
-    double shubaHFontSize = Responsive.getFontSize(screenWidth, 36);
 
     return Container(
       color: Color(0xff191B1C),
       padding: EdgeInsets.symmetric(
-        vertical: screenWidth * 0.05, // Dynamic vertical padding
-        horizontal: screenWidth * 0.08, // Adjusted for different screens
+        vertical: screenWidth * 0.05,
+        horizontal: screenWidth * 0.08,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // "Shuba" with Artistic Styled "H"
           Center(
             child: Image.asset(
-              'assets/shubha.png', // Replace with your actual image path
-              width:
-                  shubaFontSize *
-                  6, // Adjust size dynamically based on font size
-              fit: BoxFit.contain, // Ensures the image scales properly
+              'assets/logo1.png',
+              width: shubaFontSize * 6,
+              fit: BoxFit.contain,
             ),
           ),
-
           SizedBox(height: screenWidth * 0.03),
           Text(
             "address",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
               color: Colors.white,
               fontSize: titleSize,
               fontWeight: FontWeight.w600,
@@ -457,28 +444,23 @@ itemBuilder:
             textAlign: TextAlign.center,
           ),
           SizedBox(height: 6),
-
-          // Address
           Text(
             "#1,HSR Sector 1, Bangalore, Karnataka-560049",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
               color: Color(0xff737576),
               fontSize: fontSize,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.center,
           ),
-
           SizedBox(height: screenWidth * 0.03),
-
-          // "View in Map" Button
           GestureDetector(
-            onTap: () {
-              // Handle map opening
-            },
+            onTap: () {},
             child: Text(
               "View in Map",
-              style: GoogleFonts.outfit(
+              style: TextStyle(
+                fontFamily: 'Host Grotesk',
                 color: Color(0xff737576),
                 fontSize: fontSize,
                 fontWeight: FontWeight.w400,
@@ -486,85 +468,35 @@ itemBuilder:
               ),
             ),
           ),
-
           SizedBox(height: screenWidth * 0.06),
-
-          // Contact Info
           Text(
             "Contact Us",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
               color: Colors.white,
               fontSize: titleSize,
               fontWeight: FontWeight.w600,
             ),
           ),
-
           SizedBox(height: screenWidth * 0.015),
-
           Text(
             "+91 1234567890 || www.shubaexample.com",
-            style: GoogleFonts.outfit(
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
               color: Color(0xff737576),
               fontSize: fontSize,
               fontWeight: FontWeight.w400,
             ),
             textAlign: TextAlign.center,
           ),
-
-          SizedBox(height: screenWidth * 0.07),
-
-          Text(
-            "our website",
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: titleSize,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-
-          SizedBox(height: screenWidth * 0.07),
-
-          // Report
-          Text(
-            "Report",
-            style: GoogleFonts.outfit(
-              color: Colors.white,
-              fontSize: titleSize,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: screenWidth * 0.07),
-
-          Center(
-            child: Text(
-              "connect with us",
-              style: GoogleFonts.outfit(
-                color: Color(0xff737576),
-                fontSize: titleSize,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-
           SizedBox(height: screenWidth * 0.05),
-
-          // Social Media Icons
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _buildSocialIcon('assets/whatsapp.png', iconSize, () {
-                // Handle WhatsApp click
-              }),
-
-              _buildSocialIcon('assets/insta.png', iconSize, () {
-                // Handle Instagram click
-              }),
-              _buildSocialIcon('assets/x.png', iconSize, () {
-                // Handle X (Twitter) click
-              }),
-              _buildSocialIcon('assets/fb.png', iconSize, () {
-                // Handle Facebook click
-              }),
+              _buildSocialIcon('assets/whatsapp.png', iconSize, () {}),
+              _buildSocialIcon('assets/insta.png', iconSize, () {}),
+              _buildSocialIcon('assets/x.png', iconSize, () {}),
+              _buildSocialIcon('assets/fb.png', iconSize, () {}),
             ],
           ),
         ],
@@ -574,49 +506,121 @@ itemBuilder:
 
   Widget _buildSocialIcon(String assetPath, double size, VoidCallback onTap) {
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16), // Even spacing
+      padding: EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
         onTap: onTap,
         child: Image.asset(
           assetPath,
           width: size,
           height: size,
-          fit: BoxFit.contain, // Ensures proper scaling
+          fit: BoxFit.contain,
           color: Colors.white,
         ),
       ),
     );
   }
 }
-Future<List<Map<String, dynamic>>> _fetchUnitsWithProjects(
-    List<String> unitIds,
-    List<String> projectIds,
-    ) async {
-  final firestore = FirebaseFirestore.instance;
-  List<Map<String, dynamic>> result = [];
 
-  for (int i = 0; i < unitIds.length; i++) {
-    String unitId = unitIds[i];
-    String projectId = projectIds.length > i ? projectIds[i] : '';
+class HomeCarousel extends StatefulWidget {
+  const HomeCarousel({super.key});
 
-    DocumentSnapshot unitDoc =
-    await firestore.collection('spark_units').doc(unitId).get();
+  @override
+  _HomeCarouselState createState() => _HomeCarouselState();
+}
 
-    DocumentSnapshot? projectDoc;
-    if (projectId.isNotEmpty) {
-      projectDoc =
-      await firestore.collection('spark_projects').doc(projectId).get();
-    }
+class _HomeCarouselState extends State<HomeCarousel> {
+  int _current = 0;
+  final List<String> carouselImages = [
+    'https://maahomes.in/media/LANDING-PAGE-landscape_yCQHN7l.png',
+    'https://maahomes.in/media/bel-3_QElfrCg.jpg',
+    'https://maahomes.in/media/WhatsApp_Image_2024-06-01_at_6.32.47_PM.jpeg',
+    'https://maahomes.in/media/1383X446px_Panchajanyaa_Maahomes-web-banner.png',
+  ];
 
-    if (unitDoc.exists) {
-      result.add({
-        'unit': unitDoc,
-        'projectName': projectDoc != null && projectDoc.exists
-            ? projectDoc['projectName'] ?? 'Unnamed Project'
-            : 'Unknown Project',
-      });
-    }
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    return Container(
+      // Removed ClipRRect for sharp corners
+      child: Stack(
+        children: [
+          CarouselSlider(
+            options: CarouselOptions(
+              height: screenHeight * 0.4,
+              viewportFraction: 1.0,
+              autoPlay: true,
+              autoPlayInterval: Duration(seconds: 4),
+              enableInfiniteScroll: true,
+              scrollPhysics: BouncingScrollPhysics(),
+              onPageChanged: (index, reason) {
+                setState(() {
+                  _current = index;
+                });
+              },
+            ),
+            items:
+                carouselImages.map((i) {
+                  return Builder(
+                    builder: (BuildContext context) {
+                      return Container(
+                        width: screenWidth,
+                        decoration: BoxDecoration(color: Colors.grey[200]),
+                        child:
+                            i.startsWith('http')
+                                ? Image.network(
+                                  i,
+                                  fit: BoxFit.fitHeight,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Center(
+                                        child: Icon(
+                                          Icons.broken_image_outlined,
+                                          size: 50,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                )
+                                : Image.asset(
+                                  i,
+                                  fit: BoxFit.fitHeight,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Center(
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          size: 50,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                ),
+                      );
+                    },
+                  );
+                }).toList(),
+          ),
+          Positioned(
+            bottom: 20,
+            right: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children:
+                  carouselImages.asMap().entries.map((entry) {
+                    return Container(
+                      width: 20.0,
+                      height: 3.0,
+                      margin: EdgeInsets.symmetric(horizontal: 2.0),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color:
+                            _current == entry.key
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.4),
+                      ),
+                    );
+                  }).toList(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
-
-  return result;
 }

@@ -6,16 +6,22 @@ class DocumentItem extends StatelessWidget {
   final double screenWidth;
 
   const DocumentItem({
+    super.key,
     required this.document,
     required this.screenWidth,
   });
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
     return Card(
+      elevation: 0,
       color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero), // Sharp Corners
-      margin: EdgeInsets.zero, // **Removed margin**
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ), // Sharp Corners
+
+      margin: EdgeInsets.symmetric(vertical: screenHeight * 0.001),
       child: Padding(
         padding: EdgeInsets.all(screenWidth * 0.025),
         child: Row(
@@ -23,7 +29,7 @@ class DocumentItem extends StatelessWidget {
           children: [
             // Column 1: Icon
             Icon(
-              document.icon,
+              document.icon_outline,
               size: screenWidth * 0.06,
               color: Colors.black,
             ),
@@ -37,6 +43,7 @@ class DocumentItem extends StatelessWidget {
                   Text(
                     document.name,
                     style: TextStyle(
+                      fontFamily: 'Host Grotesk',
                       fontSize: screenWidth * 0.04,
                       fontWeight: FontWeight.bold,
                     ),
@@ -45,6 +52,7 @@ class DocumentItem extends StatelessWidget {
                   Text(
                     document.date,
                     style: TextStyle(
+                      fontFamily: 'Host Grotesk',
                       fontSize: screenWidth * 0.03,
                       color: Colors.grey[600],
                     ),
@@ -53,6 +61,7 @@ class DocumentItem extends StatelessWidget {
                   Text(
                     document.fileSize,
                     style: TextStyle(
+                      fontFamily: 'Host Grotesk',
                       fontSize: screenWidth * 0.03,
                       color: Colors.grey[500],
                     ),
@@ -66,11 +75,12 @@ class DocumentItem extends StatelessWidget {
               onSelected: (value) {
                 // Handle actions
               },
-              itemBuilder: (context) => [
-                PopupMenuItem(value: "Open", child: Text("Open")),
-                PopupMenuItem(value: "Download", child: Text("Download")),
-                PopupMenuItem(value: "Delete", child: Text("Delete")),
-              ],
+              itemBuilder:
+                  (context) => [
+                    PopupMenuItem(value: "Open", child: Text("Open")),
+                    PopupMenuItem(value: "Download", child: Text("Download")),
+                    PopupMenuItem(value: "Delete", child: Text("Delete")),
+                  ],
               child: Icon(Icons.more_vert),
             ),
           ],

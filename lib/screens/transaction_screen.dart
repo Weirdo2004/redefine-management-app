@@ -6,6 +6,8 @@ import '../models/transaction_model.dart';
 class TransactionScreen extends StatelessWidget {
   final TransactionController controller = Get.put(TransactionController());
 
+  TransactionScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
@@ -16,7 +18,7 @@ class TransactionScreen extends StatelessWidget {
       backgroundColor: Colors.grey[200], // Grey background
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: Icon(Icons.arrow_back_outlined, color: Colors.black),
           onPressed: () => Get.back(),
         ),
         title: Text(
@@ -44,39 +46,36 @@ class TransactionScreen extends StatelessWidget {
   }
 
   Widget _buildPaymentSection(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.of(context).size.width;
 
-  return Container(
-    width: double.infinity, // Makes it take full width
-    padding: EdgeInsets.all(screenWidth * 0.05),
-    decoration: BoxDecoration(
-      color: Colors.white,
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.center, // Center alignment
-      children: [
-        Text(
-          'YOU ARE PAYING',
-          style: TextStyle(
-            fontSize: screenWidth * 0.04,
-            fontWeight: FontWeight.w600,
-            color: Colors.grey[600],
+    return Container(
+      width: double.infinity, // Makes it take full width
+      padding: EdgeInsets.all(screenWidth * 0.05),
+      decoration: BoxDecoration(color: Colors.white),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center, // Center alignment
+        children: [
+          Text(
+            'YOU ARE PAYING',
+            style: TextStyle(
+              fontSize: screenWidth * 0.04,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey[600],
+            ),
           ),
-        ),
-        SizedBox(height: screenWidth * 0.02),
-        Text(
-          '₹ 1,32,000',
-          style: TextStyle(
-            fontSize: screenWidth * 0.06,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+          SizedBox(height: screenWidth * 0.02),
+          Text(
+            '₹ 1,32,000',
+            style: TextStyle(
+              fontSize: screenWidth * 0.06,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildTransactionList(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -93,14 +92,17 @@ class TransactionScreen extends StatelessWidget {
           ),
         ),
         SizedBox(height: screenWidth * 0.03),
-        Obx(() => ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: controller.transactions.length,
-              itemBuilder: (context, index) => _TransactionItem(
-                transaction: controller.transactions[index],
-              ),
-            )),
+        Obx(
+          () => ListView.builder(
+            shrinkWrap: true,
+            physics: NeverScrollableScrollPhysics(),
+            itemCount: controller.transactions.length,
+            itemBuilder:
+                (context, index) => _TransactionItem(
+                  transaction: controller.transactions[index],
+                ),
+          ),
+        ),
       ],
     );
   }
@@ -176,8 +178,13 @@ class _TransactionItem extends StatelessWidget {
           ),
           SizedBox(width: screenWidth * 0.03),
           IconButton(
-            icon: Icon(Icons.arrow_forward_ios, color: Colors.black), // Clickable button
-            onPressed: () => Get.toNamed('/transaction-details', arguments: transaction),
+            icon: Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.black,
+            ), // Clickable button
+            onPressed:
+                () =>
+                    Get.toNamed('/transaction-details', arguments: transaction),
           ),
         ],
       ),

@@ -4,8 +4,11 @@ class DimensionGraph extends StatelessWidget {
   final double screenWidth;
   final double screenHeight;
 
-  const DimensionGraph({Key? key, required this.screenWidth, required this.screenHeight})
-      : super(key: key);
+  const DimensionGraph({
+    super.key,
+    required this.screenWidth,
+    required this.screenHeight,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +33,37 @@ class DimensionGraph extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("<", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
+              Text(
+                "<",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Container(width: arrowLength, height: 2, color: Colors.black),
-              Text(">", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
+              Text(
+                ">",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
-        Positioned(top: -55, child: Text("120 cm", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold))),
+        Positioned(
+          top: -55,
+          child: Text(
+            "120 cm",
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
+              fontSize: textSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
 
         // Bottom Horizontal Arrow
         Positioned(
@@ -44,13 +71,37 @@ class DimensionGraph extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("<", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
+              Text(
+                "<",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
               Container(width: arrowLength, height: 2, color: Colors.black),
-              Text(">", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
+              Text(
+                ">",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
-        Positioned(bottom: -55, child: Text("120 cm", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold))),
+        Positioned(
+          bottom: -55,
+          child: Text(
+            "120 cm",
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
+              fontSize: textSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
 
         // Left Vertical Arrow
         Positioned(
@@ -58,13 +109,41 @@ class DimensionGraph extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("^", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
-              Container(height: verticalArrowLength, width: 2, color: Colors.black),
-              Text("v", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
+              Text(
+                "^",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                height: verticalArrowLength,
+                width: 2,
+                color: Colors.black,
+              ),
+              Text(
+                "v",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
-        Positioned(left: -55, child: Text("80 cm", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold))),
+        Positioned(
+          left: -55,
+          child: Text(
+            "80 cm",
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
+              fontSize: textSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
 
         // Right Vertical Arrow
         Positioned(
@@ -72,13 +151,41 @@ class DimensionGraph extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("^", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
-              Container(height: verticalArrowLength, width: 2, color: Colors.black),
-              Text("v", style: TextStyle(fontSize: textSize * 1.5, fontWeight: FontWeight.bold)),
+              Text(
+                "^",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Container(
+                height: verticalArrowLength,
+                width: 2,
+                color: Colors.black,
+              ),
+              Text(
+                "v",
+                style: TextStyle(
+                  fontFamily: 'Host Grotesk',
+                  fontSize: textSize * 1.5,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
             ],
           ),
         ),
-        Positioned(right: -55, child: Text("80 cm", style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold))),
+        Positioned(
+          right: -55,
+          child: Text(
+            "80 cm",
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
+              fontSize: textSize,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
 
         // "D=Dimension" Label (Bottom Right)
         Positioned(
@@ -86,7 +193,12 @@ class DimensionGraph extends StatelessWidget {
           right: -rectWidth * 0.2,
           child: Text(
             "D = Dimension",
-            style: TextStyle(fontSize: textSize, fontWeight: FontWeight.bold, color: Colors.black54),
+            style: TextStyle(
+              fontFamily: 'Host Grotesk',
+              fontSize: textSize,
+              fontWeight: FontWeight.bold,
+              color: Colors.black54,
+            ),
           ),
         ),
       ],
@@ -98,10 +210,11 @@ class DimensionGraph extends StatelessWidget {
 class DashedBorderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
-    Paint paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+    Paint paint =
+        Paint()
+          ..color = Colors.black
+          ..strokeWidth = 2
+          ..style = PaintingStyle.stroke;
 
     double dashWidth = 10, dashSpace = 5;
     Path path = Path();
@@ -141,28 +254,53 @@ class DashedBorderPainter extends CustomPainter {
     canvas.drawPath(path, paint);
 
     // Drawing Extended Corners
-    Paint cornerPaint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
+    Paint cornerPaint =
+        Paint()
+          ..color = Colors.black
+          ..strokeWidth = 2
+          ..style = PaintingStyle.stroke;
 
     double cornerLength = 10;
-    
+
     // Top Left Corner
     canvas.drawLine(Offset(0, -cornerLength), Offset(0, 0), cornerPaint);
     canvas.drawLine(Offset(-cornerLength, 0), Offset(0, 0), cornerPaint);
-    
+
     // Top Right Corner
-    canvas.drawLine(Offset(size.width, -cornerLength), Offset(size.width, 0), cornerPaint);
-    canvas.drawLine(Offset(size.width + cornerLength, 0), Offset(size.width, 0), cornerPaint);
-    
+    canvas.drawLine(
+      Offset(size.width, -cornerLength),
+      Offset(size.width, 0),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(size.width + cornerLength, 0),
+      Offset(size.width, 0),
+      cornerPaint,
+    );
+
     // Bottom Left Corner
-    canvas.drawLine(Offset(0, size.height + cornerLength), Offset(0, size.height), cornerPaint);
-    canvas.drawLine(Offset(-cornerLength, size.height), Offset(0, size.height), cornerPaint);
-    
+    canvas.drawLine(
+      Offset(0, size.height + cornerLength),
+      Offset(0, size.height),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(-cornerLength, size.height),
+      Offset(0, size.height),
+      cornerPaint,
+    );
+
     // Bottom Right Corner
-    canvas.drawLine(Offset(size.width, size.height + cornerLength), Offset(size.width, size.height), cornerPaint);
-    canvas.drawLine(Offset(size.width + cornerLength, size.height), Offset(size.width, size.height), cornerPaint);
+    canvas.drawLine(
+      Offset(size.width, size.height + cornerLength),
+      Offset(size.width, size.height),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(size.width + cornerLength, size.height),
+      Offset(size.width, size.height),
+      cornerPaint,
+    );
   }
 
   @override

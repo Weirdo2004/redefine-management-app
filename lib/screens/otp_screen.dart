@@ -7,7 +7,7 @@ import '../services/auth_service.dart';
 class OtpScreen extends StatefulWidget {
   final String email;
 
-  const OtpScreen({Key? key, required this.email}) : super(key: key);
+  const OtpScreen({super.key, required this.email});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
@@ -20,7 +20,7 @@ class _OtpScreenState extends State<OtpScreen> {
   int _secondsRemaining = 60;
   bool _isResendEnabled = false;
   String _localError = '';
-  
+
   // Get auth service
   final AuthService _authService = Get.find<AuthService>();
 
@@ -59,7 +59,7 @@ class _OtpScreenState extends State<OtpScreen> {
     // Check every 3 seconds if the email has been verified
     _verificationTimer = Timer.periodic(Duration(seconds: 3), (timer) async {
       await _authService.reloadUser();
-      
+
       if (_authService.isEmailVerified()) {
         _verificationTimer?.cancel();
         Get.offAllNamed('/home');
@@ -93,7 +93,7 @@ class _OtpScreenState extends State<OtpScreen> {
   // Manual verification check
   void _checkEmailVerification() async {
     await _authService.reloadUser();
-    
+
     if (_authService.isEmailVerified()) {
       Get.offAllNamed('/home');
     } else {
@@ -115,9 +115,7 @@ class _OtpScreenState extends State<OtpScreen> {
           builder: (context, constraints) {
             return SingleChildScrollView(
               child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  minHeight: constraints.maxHeight,
-                ),
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: IntrinsicHeight(
                   child: Column(
                     children: [
@@ -142,7 +140,9 @@ class _OtpScreenState extends State<OtpScreen> {
                       Expanded(
                         child: Container(
                           color: Colors.white,
-                          padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
+                          padding: EdgeInsets.symmetric(
+                            horizontal: screenWidth * 0.05,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -164,9 +164,9 @@ class _OtpScreenState extends State<OtpScreen> {
                                   color: Colors.black,
                                 ),
                               ),
-                              
+
                               SizedBox(height: screenHeight * 0.02),
-                              
+
                               Text(
                                 "Please check your email inbox and click the verification link. After verification, click the button below to continue.",
                                 style: TextStyle(
@@ -178,7 +178,9 @@ class _OtpScreenState extends State<OtpScreen> {
                               // Error messages (both local and from service)
                               if (_localError.isNotEmpty)
                                 Padding(
-                                  padding: EdgeInsets.only(top: screenHeight * 0.02),
+                                  padding: EdgeInsets.only(
+                                    top: screenHeight * 0.02,
+                                  ),
                                   child: Text(
                                     _localError,
                                     style: TextStyle(
@@ -187,11 +189,16 @@ class _OtpScreenState extends State<OtpScreen> {
                                     ),
                                   ),
                                 ),
-                                
+
                               Obx(() {
-                                if (_authService.errorMessage.value.isNotEmpty) {
+                                if (_authService
+                                    .errorMessage
+                                    .value
+                                    .isNotEmpty) {
                                   return Padding(
-                                    padding: EdgeInsets.only(top: screenHeight * 0.02),
+                                    padding: EdgeInsets.only(
+                                      top: screenHeight * 0.02,
+                                    ),
                                     child: Text(
                                       _authService.errorMessage.value,
                                       style: TextStyle(
@@ -209,39 +216,54 @@ class _OtpScreenState extends State<OtpScreen> {
                               // Verify Email Button
                               SizedBox(
                                 width: double.infinity,
-                                child: Obx(() => ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.purple,
-                                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.02),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                child: Obx(
+                                  () => ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.purple,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: screenHeight * 0.02,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                     ),
-                                  ),
-                                  onPressed: _authService.isLoading.value ? null : _checkEmailVerification,
-                                  child: _authService.isLoading.value
-                                      ? SizedBox(
-                                          height: screenWidth * 0.05,
-                                          width: screenWidth * 0.05,
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                            strokeWidth: 3,
-                                          ),
-                                        )
-                                      : Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
-                                            Text(
-                                              "I've Verified My Email",
-                                              style: TextStyle(
-                                                fontSize: screenWidth * 0.05,
+                                    onPressed:
+                                        _authService.isLoading.value
+                                            ? null
+                                            : _checkEmailVerification,
+                                    child:
+                                        _authService.isLoading.value
+                                            ? SizedBox(
+                                              height: screenWidth * 0.05,
+                                              width: screenWidth * 0.05,
+                                              child: CircularProgressIndicator(
                                                 color: Colors.white,
+                                                strokeWidth: 3,
                                               ),
+                                            )
+                                            : Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                Text(
+                                                  "I've Verified My Email",
+                                                  style: TextStyle(
+                                                    fontSize:
+                                                        screenWidth * 0.05,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
+                                                SizedBox(
+                                                  width: screenWidth * 0.02,
+                                                ),
+                                                Icon(
+                                                  Icons.arrow_forward,
+                                                  color: Colors.white,
+                                                ),
+                                              ],
                                             ),
-                                            SizedBox(width: screenWidth * 0.02),
-                                            Icon(Icons.arrow_forward, color: Colors.white),
-                                          ],
-                                        ),
-                                )),
+                                  ),
+                                ),
                               ),
 
                               SizedBox(height: screenHeight * 0.03),
@@ -259,14 +281,18 @@ class _OtpScreenState extends State<OtpScreen> {
                                     ),
                                     SizedBox(height: screenHeight * 0.01),
                                     GestureDetector(
-                                      onTap: _isResendEnabled ? _resendOtp : null,
+                                      onTap:
+                                          _isResendEnabled ? _resendOtp : null,
                                       child: Text(
                                         _isResendEnabled
                                             ? "Resend Verification Email"
                                             : "Resend in $_secondsRemaining seconds",
                                         style: TextStyle(
                                           fontSize: screenWidth * 0.04,
-                                          color: _isResendEnabled ? Colors.purple : Colors.grey,
+                                          color:
+                                              _isResendEnabled
+                                                  ? Colors.purple
+                                                  : Colors.grey,
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),

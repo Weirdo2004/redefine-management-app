@@ -5,7 +5,9 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../services/auth_service.dart';
 import 'login_screen.dart';
 
-class SignupScreen extends StatefulWidget { 
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }
@@ -13,13 +15,13 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   final PageController _pageController = PageController();
   late final AuthService _authService;
-  
+
   @override
   void initState() {
     super.initState();
-    _authService = Get.find<AuthService>(); // Get the already initialized service
+    _authService =
+        Get.find<AuthService>(); // Get the already initialized service
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -42,12 +44,15 @@ class _SignupScreenState extends State<SignupScreen> {
                   controller: _pageController,
                   children: [
                     Image.asset('assets/collaborate.jpg', fit: BoxFit.cover),
-                    Image.asset('assets/share_documents.jpg', fit: BoxFit.cover),
+                    Image.asset(
+                      'assets/share_documents.jpg',
+                      fit: BoxFit.cover,
+                    ),
                     Image.asset('assets/track_progress.jpg', fit: BoxFit.cover),
                   ],
                 ),
               ),
-          
+
               // Dots Indicator
               SizedBox(height: screenHeight * 0.02),
               SmoothPageIndicator(
@@ -60,16 +65,18 @@ class _SignupScreenState extends State<SignupScreen> {
                   dotWidth: screenWidth * 0.03,
                 ),
               ),
-          
+
               SizedBox(height: screenHeight * 0.05),
-          
+
               // Sign Up Button
               SizedBox(
-                width: screenWidth*0.4,
+                width: screenWidth * 0.4,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Color(0xFFDBD3FD),
-                    padding: EdgeInsets.symmetric(vertical: screenHeight * 0.018),
+                    padding: EdgeInsets.symmetric(
+                      vertical: screenHeight * 0.018,
+                    ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -80,13 +87,16 @@ class _SignupScreenState extends State<SignupScreen> {
                   },
                   child: Text(
                     "Login",
-                    style: TextStyle(fontSize: screenHeight * 0.022, color: Colors.black),
+                    style: TextStyle(
+                      fontSize: screenHeight * 0.022,
+                      color: Colors.black,
+                    ),
                   ),
                 ),
               ),
-          
+
               SizedBox(height: screenHeight * 0.03),
-          ],
+            ],
           ),
         ),
       ),

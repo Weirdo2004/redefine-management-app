@@ -5,13 +5,11 @@ import 'package:customerapp/screens/cost_sheet_screen.dart';
 import 'package:customerapp/screens/login_screen.dart';
 import 'package:customerapp/screens/modification_screen.dart';
 import 'package:customerapp/screens/notification_screen.dart';
-import 'package:customerapp/screens/otp_screen.dart';
 import 'package:customerapp/screens/profile_screen.dart';
 import 'package:customerapp/screens/refer_screen.dart';
-import 'package:customerapp/screens/report_screen.dart';
 import 'package:customerapp/screens/signup_screen.dart';
+import 'package:customerapp/screens/splash_screen.dart';
 import 'package:customerapp/screens/transaction_screen.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,6 +19,7 @@ import 'screens/payment_schedule_screen.dart';
 import 'screens/project_detail_screen.dart';
 import 'screens/transaction_detail_screen.dart';
 import 'services/auth_service.dart';
+import 'utils/project_style.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized properly
@@ -38,26 +37,25 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-
-
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Customer App',
       theme: ThemeData(
+        fontFamily: ProjectStyle.fontFamily,
+        scaffoldBackgroundColor: Color(0xfff5f5f5),
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       initialBinding: BindingsBuilder(() {
-        Get.put(AuthService()); // Inject AuthService for authentication management
-
+        Get.put(
+          AuthService(),
+        ); // Inject AuthService for authentication management
       }),
-      initialRoute: "/",
-      home: (FirebaseAuth.instance.currentUser!=null)?
-          HomeScreen():
-      SignupScreen(),
+      initialRoute: "/splash",
       getPages: [
+        GetPage(name: '/splash', page: () => SplashScreen()),
         GetPage(name: '/', page: () => SignupScreen()),
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/home', page: () => HomeScreen()),
@@ -72,8 +70,11 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/refer', page: () => ReferScreen()),
         GetPage(name: '/document', page: () => DocumentsScreen()),
         GetPage(name: '/transaction', page: () => TransactionScreen()),
-        GetPage(name: '/transaction-detail', page: () => TransactionDetailsScreen()),
-        GetPage(name: '/notification', page: () => NotificationsScreen())
+        GetPage(
+          name: '/transaction-detail',
+          page: () => TransactionDetailsScreen(),
+        ),
+        GetPage(name: '/notification', page: () => NotificationsScreen()),
       ],
     );
   }

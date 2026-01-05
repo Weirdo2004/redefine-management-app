@@ -25,7 +25,7 @@ class _ProjectsScreenState extends State<ProjectsScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Icon(Icons.arrow_back, color: Colors.black),
+                  Icon(Icons.arrow_back_outlined, color: Colors.black),
                   SizedBox(width: 16),
                   Text(
                     "Projects",

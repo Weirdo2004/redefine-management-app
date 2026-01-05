@@ -39,7 +39,7 @@ class ProjectDescriptionScreen extends StatelessWidget {
                 color: Colors.black,
                 icon: Padding(
                   padding: const EdgeInsets.only(right: 2.0),
-                  child: const Icon(Icons.arrow_back),
+                  child: const Icon(Icons.arrow_back_outlined),
                 ),
                 onPressed: () {
                   Navigator.pop(context);
@@ -450,7 +450,7 @@ class AmenitiesSection extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 10), // Gap 10px
-                  Icon(Icons.arrow_forward, size: 16),
+                  Icon(Icons.arrow_forward_outlined, size: 16),
                 ],
               ),
             ),
@@ -678,7 +678,7 @@ class BottomActionBar extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 8),
-                Icon(Icons.phone, color: Colors.black, size: 16),
+                Icon(Icons.phone_outlined, color: Colors.black, size: 16),
               ],
             ),
           ),

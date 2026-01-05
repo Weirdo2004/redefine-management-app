@@ -1,35 +1,36 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:customerapp/models/cost_item_model.dart';
+import 'package:customerapp/models/document_model.dart';
+import 'package:customerapp/models/payment_entry_model.dart';
+import 'package:customerapp/models/quick_action_model.dart';
+import 'package:customerapp/models/transaction_model.dart';
+import '../models/unit_model.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
-import '../models/cost_item_model.dart';
-import '../models/document_model.dart';
-import '../models/payment_entry_model.dart';
-import '../models/quick_action_model.dart';
-import '../models/transaction_model.dart';
-import '../models/unit_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import '../utils/project_style.dart';
+import '../utils/supabase_config.dart';
 
 class ProjectController extends GetxController {
-
   final String projectName;
-  final  unit;
+  final unit;
   ProjectController({required this.projectName, required this.unit});
   // Unit Summary
   final totalAmount = 0.0.obs;
   final paidAmount = 0.0.obs;
+  final unitCost = 0.0.obs;
+  final totalDue = 0.0.obs;
   final RxList<Map<String, dynamic>> paymentSchedule =
       <Map<String, dynamic>>[].obs;
   final RxList<Map<String, String>> costSheetItems =
       <Map<String, String>>[].obs;
 
   final RxList<PaymentEntry> payments = <PaymentEntry>[].obs;
+  final RxList<CostItem> charges = <CostItem>[].obs;
   final RxList<CostItem> additionalCharges = <CostItem>[].obs;
   final RxList<CostItem> constructionCharges = <CostItem>[].obs;
   final RxList<CostItem> constructionAdditionalCharges = <CostItem>[].obs;
   final RxList<CostItem> possessionCharges = <CostItem>[].obs;
-
-
-
 
   final RxDouble tA = 0.0.obs;
   final RxDouble tB = 0.0.obs;
@@ -37,15 +38,21 @@ class ProjectController extends GetxController {
   final RxDouble tD = 0.0.obs;
   final RxDouble tE = 0.0.obs;
 
-  void _parseTValues() {
-    // Fetch the values from projectData and set them, defaulting to 0.0 if not found
-    tA.value = (unit["T_A"] ?? 0.0).toDouble();
-    tB.value = (unit["T_B"] ?? 0.0).toDouble();
-    tC.value = (unit["T_C"] ?? 0.0).toDouble();
-    tD.value = (unit["T_D"] ?? 0.0).toDouble();
-    tE.value = (unit["T_E"] ?? 0.0).toDouble();
+  final RxBool isLoadingDemands = true.obs;
+  final RxBool isLoadingTransactions = false.obs;
 
-    print("📊 T-Values:");
+  void _parseTValues() {
+    final data = unit.data() as Map<String, dynamic>?;
+    if (data == null) return;
+
+    // Fetch the values from projectData and set them, defaulting to 0.0 if not found
+    tA.value = _safeParseDouble(data["T_A"]);
+    tB.value = _safeParseDouble(data["T_B"]);
+    tC.value = _safeParseDouble(data["T_C"]);
+    tD.value = _safeParseDouble(data["T_D"]);
+    tE.value = _safeParseDouble(data["T_E"]);
+
+    print("📊 T-Values (Parsed):");
     print("T_A: ${tA.value}");
     print("T_B: ${tB.value}");
     print("T_C: ${tC.value}");
@@ -53,111 +60,199 @@ class ProjectController extends GetxController {
     print("T_E: ${tE.value}");
   }
 
-
-
-
-
   // Facilities (5 Dummy Data)
-  final documents = <DocumentModel>[
-  DocumentModel(icon: Icons.description, name: 'Agreement', date: '12/2/25', fileSize: '0.3 MB'),
-  DocumentModel(icon: Icons.file_copy, name: 'Blueprint', date: '15/2/25', fileSize: '1.2 MB'),
-  DocumentModel(icon: Icons.picture_as_pdf, name: 'Payment Receipt', date: '20/2/25', fileSize: '0.5 MB'),
-  DocumentModel(icon: Icons.article, name: 'Project Plan', date: '22/2/25', fileSize: '2.0 MB'),
-  DocumentModel(icon: Icons.folder, name: 'Legal Docs', date: '28/2/25', fileSize: '0.8 MB'),
-].obs;
+  final documents =
+      <DocumentModel>[
+        DocumentModel(
+          icon_outline: Icons.description_outlined,
+          name: 'Agreement',
+          date: '12/2/25',
+          fileSize: '0.3 MB',
+        ),
+        DocumentModel(
+          icon_outline: Icons.file_copy_outlined,
+          name: 'Blueprint',
+          date: '15/2/25',
+          fileSize: '1.2 MB',
+        ),
+        DocumentModel(
+          icon_outline: Icons.picture_as_pdf_outlined,
+          name: 'Payment Receipt',
+          date: '20/2/25',
+          fileSize: '0.5 MB',
+        ),
+        DocumentModel(
+          icon_outline: Icons.article_outlined,
+          name: 'Project Plan',
+          date: '22/2/25',
+          fileSize: '2.0 MB',
+        ),
+        DocumentModel(
+          icon_outline: Icons.folder_outlined,
+          name: 'Legal Docs',
+          date: '28/2/25',
+          fileSize: '0.8 MB',
+        ),
+      ].obs;
 
-final attentionItems = [
-    UnitModel(
-      unit_no: '131',
-      amount: '1,32,000',
-      daysLeft: '3', name: '', user: '', due: '',
-    ),
-    UnitModel(
-      unit_no: '152',
-      amount: '2,50,000',
-      daysLeft: '5', name: '', user: '', due: '',
-    ),
-  ];
+  final attentionItems = <UnitModel>[].obs;
 
-
-  // Transactions (5 Dummy Data)
-  final transactions = <TransactionModel>[
-    TransactionModel(
-      icon: Icons.construction,
-      name: 'Plastering',
-      amount: 100000,
-      details: 'Agreement - Shuba Ecovillony',
-      date: '02 Mar',
-    ),
-    TransactionModel(
-      icon: Icons.build,
-      name: 'Wiring',
-      amount: 50000,
-      details: 'Electrical - Tower B',
-      date: '10 Mar',
-    ),
-    TransactionModel(
-      icon: Icons.plumbing,
-      name: 'Plumbing',
-      amount: 75000,
-      details: 'Pipelines - Basement A',
-      date: '15 Mar',
-    ),
-    TransactionModel(
-      icon: Icons.home_repair_service,
-      name: 'Tiles Work',
-      amount: 120000,
-      details: 'Flooring - Phase 1',
-      date: '18 Mar',
-    ),
-    TransactionModel(
-      icon: Icons.roofing,
-      name: 'Roof Work',
-      amount: 95000,
-      details: 'Roof Installation - Block C',
-      date: '25 Mar',
-    ),
-  ].obs;
+  // Transactions
+  final transactions = <TransactionModel>[].obs;
 
   // Quick Actions (5 Dummy Data)
-  final quickActions = <QuickActionModel>[
-    QuickActionModel(title: 'Civil Sliver', description: 'Modification Request'),
-    QuickActionModel(title: 'Paint Work', description: 'Color Customization Request'),
-    QuickActionModel(title: 'Security Update', description: 'Access Card Activation'),
-    QuickActionModel(title: 'Water Supply', description: 'Request for Additional Connection'),
-    QuickActionModel(title: 'Electrical', description: 'Power Backup Upgrade'),
-  ].obs;
-
+  final quickActions =
+      <QuickActionModel>[
+        QuickActionModel(
+          title: 'Cost Sheet',
+          description: 'View detailed cost breakdown',
+        ),
+        QuickActionModel(
+          title: 'Payment Schedule',
+          description: 'Check payment timeline',
+        ),
+        QuickActionModel(
+          title: 'Activity log',
+          description: 'View modification history',
+        ),
+        QuickActionModel(
+          title: 'Make Payment',
+          description: 'Pay your dues online',
+        ),
+        QuickActionModel(
+          title: 'Modifications',
+          description: 'Request modification',
+        ),
+      ].obs;
 
   @override
   void onInit() {
     super.onInit();
+    _initSupabase();
     _parseUnitSummaryData();
     _parseCostItems();
     _parseTValues();
     _parsePaymentData();
+    _fetchDemands();
   }
 
+  Future<void> _initSupabase() async {
+    try {
+      // Check if already initialized
+      try {
+        Supabase.instance.client;
+      } catch (e) {
+        await Supabase.initialize(
+          url: SupabaseConfig.supabaseUrl,
+          anonKey: SupabaseConfig.supabaseAnonKey,
+        );
+      }
+      _fetchTransactions();
+    } catch (e) {
+      print("❌ Supabase Init Error: $e");
+    }
+  }
 
+  Future<void> _fetchTransactions() async {
+    isLoadingTransactions.value = true;
+    try {
+      final client = Supabase.instance.client;
+
+      String? unitId;
+      try {
+        final data = unit.data() as Map<String, dynamic>?;
+        unitId = data?['id'];
+        if (unitId == null && unit is DocumentSnapshot) {
+          unitId = unit.id;
+        }
+      } catch (e) {
+        print("Error getting unit ID: $e");
+      }
+
+      print(
+        "Fetching transactions from spark_accounts (flat table) for Unit ID: $unitId",
+      );
+
+      if (unitId == null) {
+        transactions.clear();
+        return;
+      }
+
+      // Exact query based on discovered schema:
+      // Table: spark_accounts
+      // Filter: unit_id (which exists in the keys)
+      final response = await client
+          .from('spark_accounts')
+          .select()
+          .eq('unit_id', unitId)
+          .order('txt_dated', ascending: false);
+
+      print("Fetched ${response.length} transactions.");
+
+      final List<dynamic> data = response as List<dynamic>;
+      transactions.value =
+          data.map((e) => TransactionModel.fromJson(e)).toList();
+    } catch (e) {
+      print("❌ Supabase Fetch Error: $e");
+    } finally {
+      isLoadingTransactions.value = false;
+    }
+  }
 
   void _parseUnitSummaryData() {
     double eligibleCost = 0;
     double paid = 0;
     double balance = 0;
-    eligibleCost += (unit["T_elgible"] ?? 0).toDouble();
-    paid += (unit["T_review"] ?? 0).toDouble();
-    balance += (unit["T_elgible_balance"] ?? 0).toDouble();
+    double tReview = 0;
+    double tApproved = 0;
+
+    final data = unit.data() as Map<String, dynamic>?;
+
+    print("📊 Project Data Keys: ${data?.keys.toList()}");
+
+    if (data != null) {
+      eligibleCost = _safeParseDouble(data["T_elgible"]);
+
+      tReview = _safeParseDouble(data["T_review"]);
+      tApproved = _safeParseDouble(data["T_approved"]);
+      paid = tReview + tApproved;
+
+      balance = _safeParseDouble(data["T_elgible_balance"]);
+
+      // New values from T_total and T_balance
+      unitCost.value = _safeParseDouble(data["T_total"]);
+      totalDue.value = _safeParseDouble(data["T_balance"]);
+
+      print(
+        "🔎 Raw T_total: ${data["T_total"]} (${data["T_total"].runtimeType})",
+      );
+      print(
+        "🔎 Raw T_balance: ${data["T_balance"]} (${data["T_balance"].runtimeType})",
+      );
+    }
 
     totalAmount.value = eligibleCost;
     paidAmount.value = paid;
 
     print("Eligible Cost: $eligibleCost");
-    print("Paid: $paid");
+    print("Paid (Review: $tReview + Approved: $tApproved): $paid");
     print("Balance: $balance");
+    print("Unit Cost (T_total): ${unitCost.value}");
+    print("Total Due (T_balance): ${totalDue.value}");
   }
 
-
-
+  double _safeParseDouble(dynamic value) {
+    if (value == null) return 0.0;
+    if (value is num) return value.toDouble();
+    if (value is String) {
+      if (value.trim().isEmpty) return 0.0;
+      return double.tryParse(value.trim()) ?? 0.0;
+    }
+    print(
+      "⚠️ Warning: Could not parse double from $value (${value.runtimeType})",
+    );
+    return 0.0;
+  }
 
   List<CostItem> _extractCostItems(String key) {
     List<CostItem> items = [];
@@ -174,13 +269,44 @@ final attentionItems = [
           try {
             print('➡️ Parsing item $i: $item');
 
-            String label = item["component"]?["label"]?.toString().trim() ?? "N/A";
-            double price = double.tryParse(item["TotalNetSaleValueGsT"].toString()) ?? 0.0;
+            String label =
+                item["component"]?["label"]?.toString().trim() ?? "N/A";
+            double price =
+                double.tryParse(item["TotalNetSaleValueGsT"].toString()) ?? 0.0;
             String formattedPrice = "₹ ${_formatCurrency(price)}";
 
-            print('✅ Parsed: Label = $label | Price = $formattedPrice');
+            // Determine rate: try 'charges' first, then 'component.value'
+            double rateVal = 0.0;
+            if (item.containsKey('charges')) {
+              rateVal = _safeParseDouble(item['charges']);
+            } else {
+              rateVal = _safeParseDouble(item['component']?['value']);
+            }
 
-            items.add(CostItem(label, '', formattedPrice));
+            // Extract Unit and GST %
+            String unit = item['units']?['value']?.toString() ?? '';
+            String gstPercent = item['gst']?['value']?.toString() ?? '';
+            // If gstPercent is a number, format it? Usually it's like "18" or "0.18".
+            // Assuming it comes as "18" or "18%", leaving as string for now but might need formatting if it's raw number.
+            // If it's a number like 18, maybe append '%'.
+            // Let's assume raw string for now.
+
+            print(
+              '✅ Parsed: Label = $label | Price = $formattedPrice | Unit = $unit',
+            );
+
+            items.add(
+              CostItem(
+                label,
+                '',
+                formattedPrice,
+                rate: "₹ ${_formatCurrency(rateVal)}",
+                saleValue: "₹ ${_formatCurrency(item['TotalSaleValue'] ?? 0)}",
+                gst: "₹ ${_formatCurrency(item['gstValue'] ?? 0)}",
+                unit: unit,
+                gstPercentage: gstPercent,
+              ),
+            );
           } catch (e) {
             print("❌ Error parsing item $i in $key: $e");
           }
@@ -190,41 +316,33 @@ final attentionItems = [
       }
     }
     //else {
-      //print('❌ projectData does not contain key: $key');
+    //print('❌ projectData does not contain key: $key');
     //}
 
     return items;
   }
 
-
-
   void _parseCostItems() {
-    additionalCharges.value = _extractCostItems("additionalChargesCS");
-    constructionCharges.value = _extractCostItems("ConstructCS");
-    constructionAdditionalCharges.value = _extractCostItems("constAdditionalChargesCS");
-    possessionCharges.value = _extractCostItems("PossessionAdditionalCostCS");
-
+    charges.value = _extractCostItems("plotCS");
+    additionalCharges.value = _extractCostItems("addChargesCS");
+    constructionCharges.value = _extractCostItems("constructCS");
+    constructionAdditionalCharges.value = _extractCostItems(
+      "constAdditionalChargesCS",
+    );
+    possessionCharges.value = _extractCostItems("possessionAdditionalCostCS");
 
     print("✅ Parsed Cost Items:");
     print("Additional Charges: ${additionalCharges.length}");
     print("Construction Charges: ${constructionCharges.length}");
-    print("Construction Additional Charges: ${constructionAdditionalCharges.length}");
+    print(
+      "Construction Additional Charges: ${constructionAdditionalCharges.length}",
+    );
     print("Possession Charges: ${possessionCharges.length}");
   }
 
   String _formatCurrency(dynamic amount) {
-    if (amount is num) {
-      return amount
-          .toStringAsFixed(2)
-          .replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-            (Match m) => '${m[1]},',
-      );
-    }
-    return '0.00';
+    return ProjectStyle.formatCurrency(amount);
   }
-
-
 
   void _parsePaymentData() {
     var unitData = unit.data() as Map<String, dynamic>;
@@ -238,13 +356,26 @@ final attentionItems = [
         for (int index = 0; index < fullPs.length; index++) {
           var item = fullPs[index];
 
+          String description =
+              item["stage"]?["label"]?.toString() ??
+              item["label"]?.toString() ??
+              '';
+
           String dateStr =
               item["schDate"]?.toString() ?? item["oldDate"]?.toString() ?? '';
           String formattedDate = _formatDate(dateStr);
-          String amountStr = "₹ ${_formatCurrency(item["value"] ?? 0)}";
 
-          int outstanding =
-              item["outstanding"] ?? 1; // Assuming unpaid by default
+          double value = _safeParseDouble(item["value"]);
+          double amt = _safeParseDouble(item["amt"]);
+          double balanceVal = value - amt;
+
+          // If balance is calculated as 0 but outstanding flag says otherwise, we might trust the calculation or the flag.
+          // For now, using calculation for display.
+
+          String amountStr = "₹ ${_formatCurrency(value)}";
+          String receivedStr = "₹ ${_formatCurrency(amt)}";
+          String balanceStr = "₹ ${_formatCurrency(balanceVal)}";
+
           String status;
           Color statusColor;
 
@@ -260,7 +391,7 @@ final attentionItems = [
           }
 
           DateTime today = DateTime.now();
-          if (outstanding == 0) {
+          if (balanceVal <= 0) {
             status = "PAID";
             statusColor = Colors.green;
           } else if (scheduledDate != null && scheduledDate.isAfter(today)) {
@@ -277,8 +408,10 @@ final attentionItems = [
           allSchedules.add({
             'number': (index + 1).toString().padLeft(2, '0'),
             'date': formattedDate,
-            'description': item["label"] ?? '',
+            'description': description,
             'amount': amountStr,
+            'received': receivedStr,
+            'balance': balanceStr,
             'status': status,
             'statusColor': statusColor,
           });
@@ -295,6 +428,8 @@ final attentionItems = [
           print('📆 Date: ${item['date']}');
           print('📝 Description: ${item['description']}');
           print('💰 Amount: ${item['amount']}');
+          print('📥 Received: ${item['received']}');
+          print('⚖️ Balance: ${item['balance']}');
           print('📌 Status: ${item['status']}');
         }
       } else {
@@ -304,6 +439,7 @@ final attentionItems = [
       print("fullPs not found in project data.");
     }
   }
+
   String _formatDate(dynamic date) {
     if (date is Timestamp) {
       // Use your preferred date format here
@@ -319,6 +455,58 @@ final attentionItems = [
       }
     }
     return 'N/A';
+  }
+
+  Future<void> _fetchDemands() async {
+    isLoadingDemands.value = true;
+    try {
+      print("Fetching Demands...");
+      DocumentSnapshot doc =
+          await FirebaseFirestore.instance
+              .collection('demands')
+              .doc('IEPyd5WGOsmig8w9AfuX')
+              .get();
+
+      if (doc.exists) {
+        var data = doc.data() as Map<String, dynamic>;
+        String unitNo = data['unitNo']?.toString() ?? 'N/A';
+        String amount = data['amount']?.toString() ?? '0';
+        String dueDateStr = data['dueDate']?.toString() ?? '';
+
+        String daysLeft = '0';
+        if (dueDateStr.isNotEmpty) {
+          try {
+            // Check if format is pure ints or something else.
+            // Assuming standard date string or timestamp.
+            // If it's a string like "2025-01-10", parse it.
+            DateTime dueDate = DateTime.parse(dueDateStr);
+            DateTime now = DateTime.now();
+            Duration diff = dueDate.difference(now);
+            daysLeft = diff.inDays.toString();
+          } catch (e) {
+            print("Error parsing due date: $e");
+          }
+        }
+
+        attentionItems.assignAll([
+          UnitModel(
+            unit_no: unitNo,
+            amount: amount,
+            daysLeft: daysLeft,
+            name: '',
+            user: '',
+            due: '',
+          ),
+        ]);
+        print("Demands fetched successfully: ${attentionItems.length} items");
+      } else {
+        print("Demand document does not exist");
+      }
+    } catch (e) {
+      print("Error fetching demands: $e");
+    } finally {
+      isLoadingDemands.value = false;
+    }
   }
 
   String _getMonthName(int month) {
@@ -338,9 +526,4 @@ final attentionItems = [
     ];
     return months[month - 1];
   }
-
-
-
-
-
 }

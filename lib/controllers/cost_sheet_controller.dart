@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:customerapp/models/cost_item_model.dart';
+import 'package:customerapp/models/payment_entry_model.dart';
+import 'package:customerapp/models/quick_action_model.dart';
 import 'package:get/get.dart';
-
-import '../models/cost_item_model.dart';
-import '../models/payment_entry_model.dart';
-import '../models/quick_action_model.dart';
 
 // Controller
 class CostSheetController extends GetxController {
@@ -12,17 +10,7 @@ class CostSheetController extends GetxController {
     CostItem('PLC', '0 sqft', '₹ 0'),
   ];
 
-
-  final List<PaymentEntry> paymentEntries = [
-    PaymentEntry(
-      number: '01', // Added number field
-      date: '23, Apr, 2025',
-      description: 'On execution of Sale Deed',
-      amount: '₹ 1,32,000',
-      status: 'DUE TODAY',
-      statusColor: Colors.red,
-    ),
-  ];
+  final List<PaymentEntry> paymentEntries = [];
 
   final List<QuickActionModel> quickActions = [
     QuickActionModel(
@@ -34,10 +22,4 @@ class CostSheetController extends GetxController {
       description: 'Initiate new payment',
     ),
   ];
-
-
-
-
-
-
 }

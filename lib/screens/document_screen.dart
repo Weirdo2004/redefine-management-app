@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:file_picker/file_picker.dart';
 
 import '../controllers/document_controller.dart';
 import '../models/document_model.dart';
 
 class DocumentsScreen extends StatelessWidget {
   final DocumentsController controller = Get.put(DocumentsController());
+
+  DocumentsScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +32,7 @@ class DocumentsScreen extends StatelessWidget {
               ),
             ),
             Text(
-              'Shuba Ecostone - 131',
+              'Test Project - 131',
               style: TextStyle(
                 fontSize: screenWidth * 0.03,
                 color: Colors.grey,
@@ -58,72 +59,71 @@ class DocumentsScreen extends StatelessWidget {
   }
 
   Widget _buildUploadSection(BuildContext context) {
-  final screenWidth = MediaQuery.of(context).size.width;
-  return Container(
-    padding: EdgeInsets.symmetric(
-      horizontal: screenWidth * 0.06, 
-      vertical: screenWidth * 0.05,
-    ),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Left Section: Text
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Upload your Documents Effortlessly',
+    final screenWidth = MediaQuery.of(context).size.width;
+    return Container(
+      padding: EdgeInsets.symmetric(
+        horizontal: screenWidth * 0.06,
+        vertical: screenWidth * 0.05,
+      ),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // Left Section: Text
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Upload your Documents Effortlessly',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: screenWidth * 0.03),
+                Text(
+                  'Secure, fast, and hassle-free document uploads to keep everything organized and accessible anytime.',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.035,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(width: screenWidth * 0.05),
+
+          // Right Section: Upload Button
+          SizedBox(
+            width: screenWidth * 0.3,
+            height: screenWidth * 0.12,
+            child: ElevatedButton(
+              onPressed: controller.uploadDocument,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color(0xFFDBD3FD),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: Text(
+                'Upload',
                 style: TextStyle(
-                  fontSize: screenWidth * 0.04,
+                  color: Colors.black,
+                  fontSize: screenWidth * 0.035,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              SizedBox(height: screenWidth * 0.03),
-              Text(
-                'Secure, fast, and hassle-free document uploads to keep everything organized and accessible anytime.',
-                style: TextStyle(
-                  fontSize: screenWidth * 0.035,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ),
-        
-        SizedBox(width: screenWidth * 0.05),
-        
-        // Right Section: Upload Button
-        SizedBox(
-          width: screenWidth * 0.3,
-          height: screenWidth * 0.12,
-          child: ElevatedButton(
-            onPressed: controller.uploadDocument,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Color(0xFFDBD3FD),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            child: Text(
-              'Upload',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: screenWidth * 0.035,
-                fontWeight: FontWeight.bold,
-              ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
-}
-
+        ],
+      ),
+    );
+  }
 
   Widget _buildRecentUploadsSection(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -175,11 +175,12 @@ class DocumentsScreen extends StatelessWidget {
               width: itemWidth,
               height: itemWidth * 0.6,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey[200],
-                height: itemWidth * 0.6,
-                child: Icon(Icons.error_outline, color: Colors.grey),
-              ),
+              errorBuilder:
+                  (context, error, stackTrace) => Container(
+                    color: Colors.grey[200],
+                    height: itemWidth * 0.6,
+                    child: Icon(Icons.error_outline, color: Colors.grey),
+                  ),
             ),
           ),
           SizedBox(height: screenWidth * 0.02),
@@ -221,16 +222,19 @@ class DocumentsScreen extends StatelessWidget {
                 color: Colors.grey[600],
               ),
             ),
-            Obx(() => DropdownButton<String>(
-              value: controller.sortValue.value,
-              items: ['Latest', 'Oldest'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-              onChanged: (value) => controller.sortDocuments(value!),
-            )),
+            Obx(
+              () => DropdownButton<String>(
+                value: controller.sortValue.value,
+                items:
+                    ['Latest', 'Oldest'].map((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                onChanged: (value) => controller.sortDocuments(value!),
+              ),
+            ),
           ],
         ),
         SizedBox(height: screenWidth * 0.03),

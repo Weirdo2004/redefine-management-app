@@ -7,17 +7,12 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:805525655781:android:6cb13cb14a16d32fdc840c",
+        "mobilesdk_app_id": "1:805525655781:android:a297e9e3a8b446a8dc840c",
         "android_client_info": {
-          "package_name": "com.crmbook.erp.redefine"
+          "package_name": "com.boring.taskman"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -25,12 +20,83 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:12949b855654de93dc840c",
+        "android_client_info": {
+          "package_name": "com.boring.taskplanner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:27fdceb490b5ffd9dc840c",
+        "android_client_info": {
+          "package_name": "com.construction"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:6cb13cb14a16d32fdc840c",
+        "android_client_info": {
+          "package_name": "com.crmbook.erp.redefine"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:612db9c78489c93fdc840c",
+        "android_client_info": {
+          "package_name": "com.example.crmapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -41,12 +107,7 @@
           "package_name": "com.example.customerapp"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -54,12 +115,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -70,12 +126,7 @@
           "package_name": "com.example.redefineerp"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -83,12 +134,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -99,12 +145,7 @@
           "package_name": "com.example.todo"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -112,12 +153,26 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:2d6a7ada53e2702adc840c",
+        "android_client_info": {
+          "package_name": "com.redefine.customerapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -128,12 +183,7 @@
           "package_name": "com.redefine.saleapp"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -141,12 +191,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -165,10 +210,6 @@
             "package_name": "com.redefine.salesmaster",
             "certificate_hash": "ee441b6ad17c68e13e9ed0c95df22013098ef12f"
           }
-        },
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
         }
       ],
       "api_key": [
@@ -178,12 +219,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -194,12 +230,7 @@
           "package_name": "com.redefine_customer.app"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -207,12 +238,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -223,12 +249,7 @@
           "package_name": "com.sitemaster.erp.redefine"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -236,12 +257,7 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
@@ -252,12 +268,7 @@
           "package_name": "com.task.erp.redefine"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
           "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
@@ -265,12 +276,45 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "805525655781-blp0t57efv1dcunrqbvrrsnd8ok1e1ke.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:6ddb27fba6d33f62dc840c",
+        "android_client_info": {
+          "package_name": "com.taskman"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:805525655781:android:8d6394beab87ae93dc840c",
+        "android_client_info": {
+          "package_name": "com.taskplannerman"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCfee-Mdo-rFHx1JWQXf7gQ164IScmLY0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
         }
       }
     }

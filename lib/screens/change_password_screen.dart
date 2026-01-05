@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../utils/project_style.dart';
 import '../utils/responsive.dart';
 import '../controllers/password_controller.dart';
 
@@ -15,207 +15,193 @@ class PasswordChangeScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: ProjectStyle.backgroundColor,
       appBar: _buildAppBar(screenWidth, screenHeight),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: screenHeight * 0.35,
-                height: 1,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.transparent,
-                      Colors.grey.shade400,
-                      Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: ProjectStyle.pagePadding,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height: 20),
+              // Main content
+              Container(
+                color: Colors.white,
+                padding: const EdgeInsets.all(ProjectStyle.internalPadding),
+                child: Form(
+                  key: controller.formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildProfileSection(screenWidth, screenHeight),
+                      SizedBox(height: 20),
+                      Center(
+                        child: Container(
+                          width: double.infinity,
+                          height: 1,
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 30),
+                      _buildPasswordField(
+                        context: context,
+                        hintText: 'Old Password',
+                        controller: controller,
+                        textController: controller.oldPasswordController,
+                        isHidden: controller.isOldPasswordHidden,
+                        screenWidth: screenWidth,
+                        screenHeight: screenHeight,
+                      ),
+                      SizedBox(height: 20),
+                      _buildPasswordField(
+                        context: context,
+                        hintText: 'New Password',
+                        controller: controller,
+                        textController: controller.newPasswordController,
+                        isHidden: controller.isNewPasswordHidden,
+                        screenWidth: screenWidth,
+                        screenHeight: screenHeight,
+                      ),
+                      SizedBox(height: 20),
+                      _buildPasswordField(
+                        context: context,
+                        hintText: 'Confirm Password',
+                        controller: controller,
+                        textController: controller.confirmPasswordController,
+                        isHidden: controller.isConfirmPasswordHidden,
+                        screenWidth: screenWidth,
+                        screenHeight: screenHeight,
+                        validator: (value) {
+                          if (value != controller.newPasswordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+                      SizedBox(height: 10),
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: TextButton(
+                          onPressed: () => Get.toNamed('/forgot-password'),
+                          child: Text(
+                            'FORGOT PASSWORD?',
+                            style: TextStyle(
+                              fontFamily: ProjectStyle.fontFamily,
+                              color: ProjectStyle.primaryTextColor,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 40),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: controller.saveChanges,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            minimumSize: Size(double.infinity, 50),
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(color: Colors.black, width: 0.5),
+                            ),
+                          ),
+                          child: Text(
+                            'Save Changes',
+                            style: TextStyle(
+                              fontFamily: ProjectStyle.fontFamily,
+                              color: ProjectStyle.primaryTextColor,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
                     ],
                   ),
                 ),
               ),
-            ),
-            SizedBox(height: screenWidth * 0.03),
-
-            // Main content
-            Container(
-              color: Colors.white,
-              padding: EdgeInsets.all(screenWidth * 0.04),
-              child: Form(
-                key: controller.formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _buildProfileSection(screenWidth, screenHeight),
-                    SizedBox(height: screenWidth * 0.02),
-                    Center(
-                      child: Container(
-                        width: screenHeight * 0.4,
-                        height: 1,
-                        decoration: BoxDecoration(color: Colors.grey.shade300),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.05),
-                    _buildPasswordField(
-                      context: context,
-                      hintText: 'Old Password',
-                      controller: controller,
-                      textController: controller.oldPasswordController,
-                      isHidden: controller.isOldPasswordHidden,
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                    ),
-                    SizedBox(height: screenHeight * 0.02),
-                    _buildPasswordField(
-                      context: context,
-                      hintText: 'New Password',
-                      controller: controller,
-                      textController: controller.newPasswordController,
-                      isHidden: controller.isNewPasswordHidden,
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                    ),
-                    SizedBox(height: screenHeight * 0.02),
-                    _buildPasswordField(
-                      context: context,
-                      hintText: 'Confirm Password',
-                      controller: controller,
-                      textController: controller.confirmPasswordController,
-                      isHidden: controller.isConfirmPasswordHidden,
-                      screenWidth: screenWidth,
-                      screenHeight: screenHeight,
-                      validator: (value) {
-                        if (value != controller.newPasswordController.text) {
-                          return 'Passwords do not match';
-                        }
-                        return null;
-                      },
-                    ),
-                    SizedBox(height: screenHeight * 0.01),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: TextButton(
-                        onPressed: () => Get.toNamed('/forgot-password'),
-                        child: Text(
-                          'FORGOT PASSWORD?',
-                          style: GoogleFonts.outfit(
-                            color: Colors.black,
-                            fontSize: Responsive.getFontSize(screenWidth, 15),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(height: screenHeight * 0.05),
-                    Center(
-                      child: ElevatedButton(
-                        onPressed: controller.saveChanges,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Color(0xFFEDE9FE),
-                          minimumSize: Size(
-                            screenWidth * 0.9,
-                            screenHeight * 0.06,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.zero,
-                          ),
-                        ),
-                        child: Text(
-                          'Save Changes',
-                          style: GoogleFonts.outfit(
-                            color: Colors.black,
-                            fontSize: Responsive.getFontSize(screenWidth, 22),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
+              SizedBox(height: 20),
+            ],
+          ),
         ),
       ),
-
     );
   }
 
   PreferredSizeWidget _buildAppBar(double screenWidth, double screenHeight) {
     return AppBar(
-      backgroundColor: Colors.white,
+      backgroundColor: ProjectStyle.appbarbackgroundColor,
+      elevation: 0,
+      scrolledUnderElevation: 0,
       leading: IconButton(
-        icon: Icon(Icons.arrow_back, color: Colors.black),
+        icon: Icon(Icons.arrow_back_outlined, color: ProjectStyle.iconColor),
         onPressed: () => Get.back(),
       ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Password',
-            style: GoogleFonts.outfit(
-              color: Colors.black,
-              fontSize: Responsive.getFontSize(screenWidth, 24),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      title: Text(
+        'Password',
+        style: ProjectStyle.headlineText.copyWith(fontSize: 24),
       ),
     );
   }
 
   Widget _buildProfileSection(double screenWidth, double screenHeight) {
-    return Container(
-      color: Colors.white,
-      padding: EdgeInsets.all(screenHeight * 0.02),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: screenHeight * 0.035,
-            backgroundImage: AssetImage('assets/profile.jpeg'),
-          ),
-          SizedBox(width: screenWidth * 0.04),
-          Expanded(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'VISHAL KUMAR',
-                      style: GoogleFonts.outfit(
-                        color: Colors.black,
-                        fontSize: Responsive.getFontSize(screenWidth, 20),
-                        fontWeight: FontWeight.w600,
-                      ),
+    return Row(
+      children: [
+        CircleAvatar(
+          radius: 30,
+          backgroundImage: AssetImage('assets/profile.jpeg'),
+        ),
+        SizedBox(width: 16),
+        Expanded(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'VISHAL KUMAR',
+                    style: TextStyle(
+                      fontFamily: ProjectStyle.fontFamily,
+                      color: ProjectStyle.primaryTextColor,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
                     ),
-                    Text(
-                      'Joined on 29, Nov 2050',
-                      style: GoogleFonts.outfit(
-                        fontSize: Responsive.getFontSize(screenWidth, 14),
-                        color: Color(0xff656567),
-                        fontWeight: FontWeight.w400,
-                      ),
-                    ),
-                  ],
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: IconButton(
-                    icon: Icon(Icons.edit, size: screenHeight * 0.025),
-                    onPressed: () {},
                   ),
+                  Text(
+                    'Joined on 29, Nov 2050',
+                    style: TextStyle(
+                      fontFamily: ProjectStyle.fontFamily,
+                      fontSize: 14,
+                      color: Color(0xff656567),
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.edit_outlined,
+                    size: 20,
+                    color: ProjectStyle.iconColor,
+                  ),
+                  onPressed: () {},
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -231,40 +217,41 @@ class PasswordChangeScreen extends StatelessWidget {
   }) {
     return Container(
       color: Colors.white,
-      padding: EdgeInsets.symmetric(vertical: screenWidth * 0.02),
       child: Obx(
         () => TextFormField(
           controller: textController,
           obscureText: isHidden.value,
-          style: GoogleFonts.outfit(
-            fontSize: Responsive.getFontSize(screenWidth, 16),
+          style: TextStyle(
+            fontFamily: ProjectStyle.fontFamily,
+            fontSize: 16,
             color: Color(0xff616162),
           ),
           decoration: InputDecoration(
             hintText: hintText,
-            hintStyle: GoogleFonts.outfit(
-              fontSize: Responsive.getFontSize(screenWidth, 16),
+            hintStyle: TextStyle(
+              fontFamily: ProjectStyle.fontFamily,
+              fontSize: 16,
               color: Color(0xff616162),
               fontWeight: FontWeight.w400,
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Colors.black, width: 0.5),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Colors.black, width: 0.5),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.zero,
+              borderRadius: BorderRadius.circular(8),
               borderSide: BorderSide(color: Colors.black, width: 0.5),
             ),
-            contentPadding: EdgeInsets.all(screenWidth * 0.03),
+            contentPadding: EdgeInsets.all(12),
             suffixIcon: IconButton(
               icon: Icon(
                 isHidden.value ? Icons.visibility_off : Icons.visibility,
-                color: Color(0xff191B1C),
-                size: screenHeight * 0.02,
+                color: ProjectStyle.iconColor,
+                size: 20,
               ),
               onPressed: () {
                 isHidden.toggle();
