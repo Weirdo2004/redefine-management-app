@@ -14,6 +14,7 @@ import '../utils/responsive.dart';
 import 'my_units_screen.dart';
 import 'profile_screen.dart';
 import 'refer_and_earn_screen.dart';
+import 'projects_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,7 +29,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _pages = [
     HomeContent(),
     MyUnitsScreen(),
-    ReferAndEarnScreen(),
+    // ReferAndEarnScreen(),
+    ProjectsScreen(),
     ProfileScreen(), // This is now "Account"
   ];
 
@@ -480,7 +482,7 @@ class _HomeContentState extends State<HomeContent> {
           ),
           SizedBox(height: screenWidth * 0.015),
           Text(
-            "+91 1234567890 || www.shubaexample.com",
+            "+91 1234567890 || www.maahomes.in",
             style: TextStyle(
               fontFamily: 'Host Grotesk',
               color: Color(0xff737576),

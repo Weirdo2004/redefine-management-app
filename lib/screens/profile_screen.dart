@@ -329,7 +329,7 @@ class ProfileScreen extends StatelessWidget {
           SizedBox(height: screenWidth * 0.015),
 
           Text(
-            "+91 1234567890 || www.shubaexample.com",
+            "+91 1234567890 || www.maahomes.in",
             style: TextStyle(
               fontFamily: ProjectStyle.fontFamily,
               color: Color(0xff737576),
