@@ -13,6 +13,7 @@ import 'package:customerapp/screens/transaction_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'screens/document_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/payment_schedule_screen.dart';
@@ -25,7 +26,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized properly
 
   try {
-    await Firebase.initializeApp(); // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    ); // Initialize Firebase
     print("✅ Firebase Initialized Successfully");
   } catch (e) {
     print("🔥 Firebase Initialization Error: $e");
