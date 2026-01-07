@@ -48,7 +48,7 @@ class ModificationScreen extends StatelessWidget {
       scrolledUnderElevation: 0,
       leading: IconButton(
         icon: const Icon(Icons.arrow_back, color: ProjectStyle.iconColor),
-        onPressed: () => Get.back(),
+        onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 0,
       title: Transform.translate(

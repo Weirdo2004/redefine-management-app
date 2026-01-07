@@ -18,20 +18,25 @@ class DocumentsController extends GetxController {
   void _loadInitialData() {
     recentUploads.assignAll([
       DocumentModel(
+        id: '1',
         name: 'Land Agreement',
-        date: '12/12/2025',
-        fileSize: '0.300 KB',
-        icon_outline: Icons.description_outlined, // Icon instead of image
+        url: '',
+        category: 'Agreement',
+        uploadedBy: 'User',
+        uploadedOn: DateTime(2025, 12, 12),
+        icon: Icons.description_outlined,
       ),
     ]);
 
     documents.assignAll([
       DocumentModel(
+        id: '2',
         name: 'Main Contract',
-        date: '15/12/2025',
-        fileSize: '1.2 MB',
-        icon_outline:
-            Icons.article_outlined, // Different icon for different types
+        url: '',
+        category: 'Contract',
+        uploadedBy: 'User',
+        uploadedOn: DateTime(2025, 12, 15),
+        icon: Icons.article_outlined,
       ),
     ]);
   }
@@ -61,8 +66,8 @@ class DocumentsController extends GetxController {
     documents.sort(
       (a, b) =>
           value == 'Latest'
-              ? b.date.compareTo(a.date)
-              : a.date.compareTo(b.date),
+              ? b.uploadedOn.compareTo(a.uploadedOn)
+              : a.uploadedOn.compareTo(b.uploadedOn),
     );
   }
 

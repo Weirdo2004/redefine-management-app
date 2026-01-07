@@ -195,7 +195,7 @@ class DocumentsScreen extends StatelessWidget {
           ),
           SizedBox(height: screenWidth * 0.01),
           Text(
-            '${upload.date} • ${upload.fileSize}',
+            upload.formattedDate,
             style: TextStyle(
               fontSize: screenWidth * 0.03,
               color: Colors.grey[600],
@@ -289,7 +289,7 @@ class DocumentsScreen extends StatelessWidget {
                     ),
                     SizedBox(height: screenWidth * 0.01),
                     Text(
-                      '${document.date} • ${document.fileSize}',
+                      document.formattedDate,
                       style: TextStyle(
                         fontSize: screenWidth * 0.035,
                         color: Colors.grey[600],

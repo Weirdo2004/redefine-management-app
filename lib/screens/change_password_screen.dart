@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../utils/project_style.dart';
-import '../utils/responsive.dart';
 import '../controllers/password_controller.dart';
 
 class PasswordChangeScreen extends StatelessWidget {

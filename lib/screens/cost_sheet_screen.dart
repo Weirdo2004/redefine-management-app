@@ -119,7 +119,7 @@ class _CostSheetScreenState extends State<CostSheetScreen>
                 Icons.arrow_back_outlined,
                 color: ProjectStyle.iconColor,
               ),
-              onPressed: () => Get.back(),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             titleSpacing: 0,
             title: Transform.translate(

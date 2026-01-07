@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../controllers/project_controller.dart';
 import '../widgets/donut_chart.dart';
-import '../widgets/document_item.dart';
 import '../widgets/need_attention_item.dart';
 import 'package:lottie/lottie.dart';
 import '../widgets/transaction_item.dart';
@@ -133,7 +133,7 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
                 Icons.arrow_back_outlined,
                 color: ProjectStyle.iconColor,
               ),
-              onPressed: () => Get.back(),
+              onPressed: () => Navigator.of(context).pop(),
             ),
             titleSpacing: 0,
             title: Transform.translate(
@@ -260,12 +260,12 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
 
                     SizedBox(key: _sectionKeys['Documents']),
                     _buildDocumentsSection(),
-                    const SizedBox(height: 0),
+                    //const SizedBox(height: 0),
 
                     // const DottedSeparator(
                     //   color: ProjectStyle.secondaryTextColor,
                     // ),
-                    SizedBox(key: _sectionKeys['Transactions']),
+                    //SizedBox(key: _sectionKeys['Transactions']),
                     _buildTransactionsSection(),
                     const SizedBox(height: ProjectStyle.sectionSpacing),
 
@@ -794,50 +794,236 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
   }
 
   Widget _buildDocumentsSection() {
+    return Obx(() {
+      if (_controller.isLoadingDocuments.value) {
+        return const Center(
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: CircularProgressIndicator(),
+          ),
+        );
+      }
+
+      int totalDocs = 0;
+      _controller.documentsMap.forEach((key, value) {
+        totalDocs += value.length;
+      });
+
+      // Calculate pending or other stats if logical. For now using '0' for pending as per design mock or logic?
+      // Design shows "Pending Documents 5", "Total Documents 0".
+      // If we don't have logic for 'Pending', we might just show total uploaded.
+      // Let's assume 'Pending' is 5 - totalDocs for now, or just static '0' if no requirement.
+      // User said: "remove the hardoced parts in it and then make it dynamic, by fetching data from firebase"
+      // So I should make stats dynamic too if possible.
+      // "Uploaded By" is "No Data" in design.
+      // "Pending Documents": I'll just show 'N/A' or calculated if I knew total required.
+      // I'll stick to showing Total Documents dynamically.
+
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('DOCUMENTS', style: ProjectStyle.sectionHeaderText),
+          const SizedBox(height: 10),
+
+          // Stats Row
+          Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+            margin: const EdgeInsets.only(bottom: 20),
+            decoration: BoxDecoration(
+              color: ProjectStyle.surfaceColor,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildDocStat("Total Documents", "$totalDocs"),
+                _buildDocStat("Uploaded By", "Admin"), // Placeholder
+                _buildDocStat("Pending Documents", "0"), // Placeholder
+              ],
+            ),
+          ),
+
+          // Categories
+          _buildDocCategoryTile("Agreement"),
+          _buildDocCategoryTile("Register Doc"),
+          _buildDocCategoryTile("Construction Gallery"),
+          _buildDocCategoryTile("EC"),
+          _buildDocCategoryTile("Others"),
+        ],
+      );
+    });
+  }
+
+  Widget _buildDocStat(String label, String value) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('DOCUMENTS', style: ProjectStyle.sectionHeaderText),
-        const SizedBox(height: 10),
-        Obx(
-          () => ListView.builder(
-            padding: EdgeInsets.zero,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _controller.documents.length,
-            itemBuilder:
-                (context, index) => DocumentItem(
-                  document: _controller.documents[index],
-                  screenWidth: MediaQuery.of(context).size.width,
-                ),
+        Text(
+          label,
+          style: ProjectStyle.bodyText.copyWith(
+            fontSize: 10,
+            color: Colors.grey[600],
           ),
         ),
-        // Adjust spacing above the button here
-        const SizedBox(height: 16),
-        GestureDetector(
-          onTap: () {},
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 12),
+        const SizedBox(height: 4),
+        Text(value, style: ProjectStyle.titleText.copyWith(fontSize: 16)),
+      ],
+    );
+  }
+
+  // State to track expansion status of each category
+  final Map<String, bool> _expandedStates = {};
+
+  Widget _buildDocCategoryTile(String category) {
+    return Obx(() {
+      final docs = _controller.documentsMap[category] ?? [];
+      final count = docs.length;
+      final isExpanded = _expandedStates[category] ?? false;
+
+      return Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Colors.transparent),
+        ),
+        child: Theme(
+          data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+          child: ExpansionTile(
+            key: PageStorageKey(category), // Preserve state
+            onExpansionChanged: (expanded) {
+              setState(() {
+                _expandedStates[category] = expanded;
+              });
+            },
+            tilePadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 0,
+            ),
+            title: Row(
+              children: [
+                Icon(
+                  Icons.folder_open_outlined,
+                  size: 20,
+                  color: Colors.grey[800],
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  category,
+                  style: const TextStyle(
+                    fontFamily: ProjectStyle.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  "$count Docs",
+                  style: TextStyle(
+                    fontFamily: ProjectStyle.fontFamily,
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+                const SizedBox(width: 4),
+                const Icon(Icons.add, size: 20, color: Colors.grey),
+                const SizedBox(width: 12), // Increased spacing as requested
+                Icon(
+                  isExpanded
+                      ? Icons.keyboard_arrow_up
+                      : Icons.keyboard_arrow_down,
+                  size: 20,
+                  color: Colors.grey,
+                ),
+              ],
+            ),
+            children: docs.map((doc) => _buildDocItem(doc)).toList(),
+          ),
+        ),
+      );
+    });
+  }
+
+  Widget _buildDocItem(dynamic doc) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: Colors.grey.shade100)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.black),
+              color: Colors.grey[100],
               borderRadius: BorderRadius.circular(8),
             ),
-            alignment: Alignment.center,
-            child: const Text(
-              'View all',
-              style: TextStyle(
-                fontFamily: ProjectStyle.fontFamily,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: ProjectStyle.primaryTextColor,
-              ),
+            child: const Icon(
+              Icons.description_outlined,
+              size: 20,
+              color: Colors.grey,
             ),
           ),
-        ),
-        // Adjust spacing below the button here
-        const SizedBox(height: 6),
-      ],
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  doc.name,
+                  style: const TextStyle(
+                    fontFamily: ProjectStyle.fontFamily,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  doc.formattedDate,
+                  style: TextStyle(
+                    fontFamily: ProjectStyle.fontFamily,
+                    fontSize: 12,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.download_rounded,
+              color: ProjectStyle.accentColor,
+            ),
+            onPressed: () async {
+              try {
+                if (doc.url == null || doc.url.isEmpty) {
+                  Get.snackbar("Error", "Document URL is not available");
+                  return;
+                }
+
+                final Uri url = Uri.parse(doc.url);
+                // Try launching directly without checking canLaunchUrl which can be flaky on some Android versions for http/https
+                if (!await launchUrl(
+                  url,
+                  mode: LaunchMode.externalApplication,
+                )) {
+                  // Fallback to platform default if external application fails
+                  await launchUrl(url);
+                }
+              } catch (e) {
+                print("Could not launch URL: $e");
+                Get.snackbar("Error", "Could not open document");
+              }
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -845,7 +1031,6 @@ class _ProjectDetailScreenState extends State<ProjectDetailScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 17),
         const Text(
           'RECENT TRANSACTIONS',
           style: ProjectStyle.sectionHeaderText,

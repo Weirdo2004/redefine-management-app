@@ -61,55 +61,6 @@ class HomeController extends GetxController {
     return 0.0;
   }
 
-  final attentionItems = [
-    UnitModel(
-      unit_no: '131',
-      amount: '1,32,000',
-      daysLeft: '3',
-      name: '',
-      user: '',
-      due: '',
-    ),
-    UnitModel(
-      unit_no: '152',
-      amount: '2,50,000',
-      daysLeft: '5',
-      name: '',
-      user: '',
-      due: '',
-    ),
-  ];
-
-  final myUnits = [
-    UnitModel(
-      unit_no: '131',
-      name: 'SHUBA ECO STONE',
-      user: 'S Vishal Kumar',
-      due: '1,32,000',
-    ),
-    UnitModel(
-      unit_no: '152',
-      name: 'SHUBA ELAN',
-      user: 'S Vishal Kumar',
-      due: '2,50,000',
-    ),
-  ];
-
-  final projects = [
-    ProjectModel(
-      name: 'SHUBA ELAN',
-      location: 'CHIKBALAPUR',
-      price: '2.25 cr',
-      image: 'assets/project1.jpeg',
-    ),
-    ProjectModel(
-      name: 'SHUBA ECO STONE',
-      location: 'BANGALORE',
-      price: '1.75 cr',
-      image: 'assets/project1.jpeg',
-    ),
-  ];
-
   final stories = [
     {
       'title': 'Shuba Elan',

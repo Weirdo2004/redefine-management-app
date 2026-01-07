@@ -18,7 +18,7 @@ class PaymentScheduleScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: ProjectStyle.backgroundColor,
-      appBar: _buildAppBar(screenHeight),
+      appBar: _buildAppBar(context, screenHeight),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           ProjectStyle.pagePadding,
@@ -46,7 +46,7 @@ class PaymentScheduleScreen extends StatelessWidget {
 
   // ---------------- APP BAR ----------------
 
-  AppBar _buildAppBar(double screenHeight) {
+  AppBar _buildAppBar(BuildContext context, double screenHeight) {
     return AppBar(
       backgroundColor: ProjectStyle.appbarbackgroundColor,
       elevation: 0,
@@ -56,7 +56,7 @@ class PaymentScheduleScreen extends StatelessWidget {
           size: screenHeight * 0.025,
           color: ProjectStyle.iconColor,
         ),
-        onPressed: Get.back,
+        onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 0,
       title: Transform.translate(

@@ -40,6 +40,7 @@ class ProjectController extends GetxController {
 
   final RxBool isLoadingDemands = true.obs;
   final RxBool isLoadingTransactions = false.obs;
+  final RxList<UnitModel> attentionItems = <UnitModel>[].obs;
 
   void _parseTValues() {
     final data = unit.data() as Map<String, dynamic>?;
@@ -60,42 +61,128 @@ class ProjectController extends GetxController {
     print("T_E: ${tE.value}");
   }
 
-  // Facilities (5 Dummy Data)
-  final documents =
-      <DocumentModel>[
-        DocumentModel(
-          icon_outline: Icons.description_outlined,
-          name: 'Agreement',
-          date: '12/2/25',
-          fileSize: '0.3 MB',
-        ),
-        DocumentModel(
-          icon_outline: Icons.file_copy_outlined,
-          name: 'Blueprint',
-          date: '15/2/25',
-          fileSize: '1.2 MB',
-        ),
-        DocumentModel(
-          icon_outline: Icons.picture_as_pdf_outlined,
-          name: 'Payment Receipt',
-          date: '20/2/25',
-          fileSize: '0.5 MB',
-        ),
-        DocumentModel(
-          icon_outline: Icons.article_outlined,
-          name: 'Project Plan',
-          date: '22/2/25',
-          fileSize: '2.0 MB',
-        ),
-        DocumentModel(
-          icon_outline: Icons.folder_outlined,
-          name: 'Legal Docs',
-          date: '28/2/25',
-          fileSize: '0.8 MB',
-        ),
-      ].obs;
+  final RxBool isLoadingDocuments = true.obs;
+  // Map to store documents grouped by category
+  final Map<String, RxList<DocumentModel>> documentsMap = {
+    'Agreement': <DocumentModel>[].obs,
+    'Register Doc': <DocumentModel>[].obs,
+    'Construction Gallery': <DocumentModel>[].obs,
+    'EC': <DocumentModel>[].obs,
+    'Others': <DocumentModel>[].obs,
+  };
 
-  final attentionItems = <UnitModel>[].obs;
+  void _fetchDocuments() async {
+    isLoadingDocuments.value = true;
+    try {
+      final data = unit.data() as Map<String, dynamic>?;
+      String? unitId;
+      if (data != null && data.containsKey('id')) {
+        unitId = data['id'];
+      } else if (unit is DocumentSnapshot) {
+        unitId = unit.id;
+      }
+
+      // FIXME: Temporary hardcode for testing/debugging as per user request
+      unitId = 'jcP8JHDu5jIpI6r1a4Mr';
+
+      print("📂 Fetching documents for Unit ID: $unitId");
+
+      final docSnapshot =
+          await FirebaseFirestore.instance
+              .collection('spark_unit_docs')
+              .doc(unitId)
+              .get();
+
+      if (docSnapshot.exists && docSnapshot.data() != null) {
+        final docsData = docSnapshot.data() as Map<String, dynamic>;
+
+        print("📄 Document Data: $docsData");
+
+        // Clear existing docs
+        documentsMap.forEach((key, value) => value.clear());
+
+        // Check if the document ITSELF is a file record (has 'url' or 'cat' at root)
+        bool isSingleFile =
+            docsData.containsKey('url') || docsData.containsKey('cat');
+
+        if (isSingleFile) {
+          print("💡 Detected Single File Document");
+          try {
+            final doc = DocumentModel.fromJson(docSnapshot.id, docsData);
+            _categorizeDocument(doc);
+          } catch (e) {
+            print("❌ Error parsing single document: $e");
+          }
+        } else {
+          // Iterate as map of files
+          print("💡 Detected Map of Files");
+          docsData.forEach((key, value) {
+            if (value is Map<String, dynamic>) {
+              try {
+                final doc = DocumentModel.fromJson(key, value);
+                _categorizeDocument(doc);
+              } catch (e) {
+                print("❌ Error parsing document $key: $e");
+              }
+            } else {
+              print(
+                "⚠️ Value for $key is not a Map used for parsing: ${value.runtimeType}",
+              );
+            }
+          });
+        }
+      } else {
+        print("⚠️ No documents found for this unit.");
+      }
+    } catch (e) {
+      print("❌ Error fetching documents: $e");
+    } finally {
+      isLoadingDocuments.value = false;
+    }
+  }
+
+  void _categorizeDocument(DocumentModel doc) {
+    // Map Firebase 'cat' to our display categories
+    // Assuming 'cat' values from Firebase need to be mapped.
+    // If exact match is found, add it, otherwise add to 'Others' or specific logic.
+
+    // Example mapping based on common sense or typical keys,
+    // adjusting based on what we see in the image: "constructGallery" -> "Construction Gallery"
+    String targetCategory = 'Others';
+
+    switch (doc.category) {
+      case 'agree':
+      case 'agreement':
+      case 'Agreement':
+        targetCategory = 'Agreement';
+        break;
+      case 'reg':
+      case 'registry':
+      case 'Register Doc':
+      case 'register_doc':
+        targetCategory = 'Register Doc';
+        break;
+      case 'others':
+        targetCategory = 'Others';
+        break;
+      case 'constructGallery':
+      case 'Construction Gallery':
+        targetCategory = 'Construction Gallery';
+        break;
+      case 'ec':
+      case 'EC':
+        targetCategory = 'EC';
+        break;
+      default:
+        targetCategory = 'Others';
+    }
+
+    if (documentsMap.containsKey(targetCategory)) {
+      documentsMap[targetCategory]!.add(doc);
+    } else {
+      documentsMap['Others']!.add(doc);
+    }
+  }
 
   // Transactions
   final transactions = <TransactionModel>[].obs;
@@ -134,6 +221,7 @@ class ProjectController extends GetxController {
     _parseTValues();
     _parsePaymentData();
     _fetchDemands();
+    _fetchDocuments();
   }
 
   Future<void> _initSupabase() async {

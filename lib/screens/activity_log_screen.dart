@@ -19,7 +19,7 @@ class ActivityLogScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      appBar: _buildAppBar(screenWidth, screenHeight),
+      appBar: _buildAppBar(context, screenWidth, screenHeight),
       body: SingleChildScrollView(
         padding: EdgeInsets.fromLTRB(
           ProjectStyle.pagePadding,
@@ -40,7 +40,11 @@ class ActivityLogScreen extends StatelessWidget {
     );
   }
 
-  AppBar _buildAppBar(double screenWidth, double screenHeight) {
+  AppBar _buildAppBar(
+    BuildContext context,
+    double screenWidth,
+    double screenHeight,
+  ) {
     return AppBar(
       backgroundColor: ProjectStyle.appbarbackgroundColor,
       elevation: 0,
@@ -50,7 +54,7 @@ class ActivityLogScreen extends StatelessWidget {
           size: screenHeight * 0.025,
           color: ProjectStyle.iconColor,
         ),
-        onPressed: () => Get.back(),
+        onPressed: () => Navigator.of(context).pop(),
       ),
       titleSpacing: 0,
       title: Transform.translate(

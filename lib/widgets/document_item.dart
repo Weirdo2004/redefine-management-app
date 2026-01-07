@@ -29,13 +29,13 @@ class DocumentItem extends StatelessWidget {
           children: [
             // Column 1: Icon
             Icon(
-              document.icon_outline,
+              document.icon ?? Icons.description_outlined,
               size: screenWidth * 0.06,
               color: Colors.black,
             ),
             SizedBox(width: screenWidth * 0.06),
 
-            // Column 2: Name, Date, File Size
+            // Column 2: Name, Date
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,26 +50,17 @@ class DocumentItem extends StatelessWidget {
                   ),
                   SizedBox(height: screenWidth * 0.005),
                   Text(
-                    document.date,
+                    document.formattedDate,
                     style: TextStyle(
                       fontFamily: 'Host Grotesk',
                       fontSize: screenWidth * 0.03,
                       color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(height: screenWidth * 0.005),
-                  Text(
-                    document.fileSize,
-                    style: TextStyle(
-                      fontFamily: 'Host Grotesk',
-                      fontSize: screenWidth * 0.03,
-                      color: Colors.grey[500],
-                    ),
-                  ),
+                  // Removed fileSize as it's not in the model
                 ],
               ),
             ),
-
             // Column 3: 3-Dot Menu
             PopupMenuButton<String>(
               onSelected: (value) {
