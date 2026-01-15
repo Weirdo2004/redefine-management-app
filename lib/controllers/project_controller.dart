@@ -1,4 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:customerapp/models/cost_item_model.dart';
 import 'package:customerapp/models/document_model.dart';
 import 'package:customerapp/models/payment_entry_model.dart';
@@ -74,13 +74,16 @@ class ProjectController extends GetxController {
   void _fetchDocuments() async {
     isLoadingDocuments.value = true;
     try {
+      /*
       final data = unit.data() as Map<String, dynamic>?;
+      String? unitId;
       String? unitId;
       if (data != null && data.containsKey('id')) {
         unitId = data['id'];
-      } else if (unit is DocumentSnapshot) {
-        unitId = unit.id;
-      }
+      } 
+      // else if (unit is DocumentSnapshot) {
+      //   unitId = unit.id;
+      // }
 
       // FIXME: Temporary hardcode for testing/debugging as per user request
       unitId = 'jcP8JHDu5jIpI6r1a4Mr';
@@ -134,6 +137,7 @@ class ProjectController extends GetxController {
       } else {
         print("⚠️ No documents found for this unit.");
       }
+      */
     } catch (e) {
       print("❌ Error fetching documents: $e");
     } finally {
@@ -141,6 +145,7 @@ class ProjectController extends GetxController {
     }
   }
 
+  /*
   void _categorizeDocument(DocumentModel doc) {
     // Map Firebase 'cat' to our display categories
     // Assuming 'cat' values from Firebase need to be mapped.
@@ -171,6 +176,7 @@ class ProjectController extends GetxController {
         break;
       case 'ec':
       case 'EC':
+      case 'EC':
         targetCategory = 'EC';
         break;
       default:
@@ -183,6 +189,7 @@ class ProjectController extends GetxController {
       documentsMap['Others']!.add(doc);
     }
   }
+*/
 
   // Transactions
   final transactions = <TransactionModel>[].obs;
@@ -250,9 +257,9 @@ class ProjectController extends GetxController {
       try {
         final data = unit.data() as Map<String, dynamic>?;
         unitId = data?['id'];
-        if (unitId == null && unit is DocumentSnapshot) {
-          unitId = unit.id;
-        }
+        // if (unitId == null && unit is DocumentSnapshot) {
+        //   unitId = unit.id;
+        // }
       } catch (e) {
         print("Error getting unit ID: $e");
       }
@@ -529,10 +536,10 @@ class ProjectController extends GetxController {
   }
 
   String _formatDate(dynamic date) {
-    if (date is Timestamp) {
-      // Use your preferred date format here
-      return date.toDate().toString();
-    }
+    // if (date is Timestamp) {
+    //   // Use your preferred date format here
+    //   return date.toDate().toString();
+    // }
     if (date is String && date.isNotEmpty) {
       try {
         DateTime parsedDate = DateTime.parse(date);
@@ -549,6 +556,7 @@ class ProjectController extends GetxController {
     isLoadingDemands.value = true;
     try {
       print("Fetching Demands...");
+      /*
       DocumentSnapshot doc =
           await FirebaseFirestore.instance
               .collection('demands')
@@ -590,6 +598,7 @@ class ProjectController extends GetxController {
       } else {
         print("Demand document does not exist");
       }
+      */
     } catch (e) {
       print("Error fetching demands: $e");
     } finally {

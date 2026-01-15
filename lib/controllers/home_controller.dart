@@ -1,7 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:customerapp/models/project_model.dart';
-import 'package:customerapp/models/unit_model.dart';
-import 'package:customerapp/utils/project_style.dart';
 import 'package:get/get.dart';
 
 class HomeController extends GetxController {
@@ -25,40 +21,35 @@ class HomeController extends GetxController {
   }
 
   void _fetchUnitData() {
-    FirebaseFirestore.instance
-        .doc('/spark_units/NQ1GGynwiDg58BD1kKPv')
-        .snapshots()
-        .listen((snapshot) {
-          if (snapshot.exists) {
-            final data = snapshot.data();
-            if (data != null) {
-              double tBalance = _safeParseDouble(data['T_elgible_balance']);
-              double tReview = _safeParseDouble(data['T_review']);
-              double tApproved = _safeParseDouble(data['T_approved']);
-              double totalPaid = tReview + tApproved;
+    // FirebaseFirestore.instance
+    //     .doc('/spark_units/NQ1GGynwiDg58BD1kKPv')
+    //     .snapshots()
+    //     .listen((snapshot) {
+    //       if (snapshot.exists) {
+    //         final data = snapshot.data();
+    //         if (data != null) {
+    //           double tBalance = _safeParseDouble(data['T_elgible_balance']);
+    //           double tReview = _safeParseDouble(data['T_review']);
+    //           double tApproved = _safeParseDouble(data['T_approved']);
+    //           double totalPaid = tReview + tApproved;
 
-              summaryData[0] = {'value': '1', 'label': 'Total Units'};
-              summaryData[1] = {
-                'value': '₹ ${ProjectStyle.formatCurrency(tBalance)}',
-                'label': 'Total Due',
-              };
-              summaryData[2] = {
-                'value': '₹ ${ProjectStyle.formatCurrency(totalPaid)}',
-                'label': 'Total Paid',
-              };
-            }
-          }
-        });
-  }
+    //           summaryData[0] = {'value': '1', 'label': 'Total Units'};
+    //           summaryData[1] = {
+    //             'value': '₹ ${ProjectStyle.formatCurrency(tBalance)}',
+    //             'label': 'Total Due',
+    //           };
+    //           summaryData[2] = {
+    //             'value': '₹ ${ProjectStyle.formatCurrency(totalPaid)}',
+    //             'label': 'Total Paid',
+    //           };
+    //         }
+    //       }
+    //     });
 
-  double _safeParseDouble(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is num) return value.toDouble();
-    if (value is String) {
-      if (value.trim().isEmpty) return 0.0;
-      return double.tryParse(value.trim()) ?? 0.0;
-    }
-    return 0.0;
+    // Mock Data
+    summaryData[0] = {'value': '1', 'label': 'Total Units'};
+    summaryData[1] = {'value': '₹ 10,00,000', 'label': 'Total Due'};
+    summaryData[2] = {'value': '₹ 2,50,000', 'label': 'Total Paid'};
   }
 
   final stories = [

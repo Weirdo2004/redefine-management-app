@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
 import 'package:get/get.dart';
 import '../models/unit_model.dart';
+import '../utils/project_style.dart';
 import 'needs_attention_detail_sheet.dart';
 
 class NeedsAttentionItem extends StatelessWidget {
@@ -101,16 +102,7 @@ class NeedsAttentionItem extends StatelessWidget {
                       children: [
                         Flexible(
                           child: Text(
-                            NumberFormat.currency(
-                              locale: 'en_IN',
-                              symbol: '₹',
-                              decimalDigits: 0,
-                            ).format(
-                              double.tryParse(
-                                    unit.amount?.replaceAll(',', '') ?? '0',
-                                  ) ??
-                                  0,
-                            ),
+                            "₹ ${ProjectStyle.formatCurrency(unit.amount)}",
                             style: TextStyle(
                               fontFamily: 'Host Grotesk',
                               color: Color(0xff191B1C),

@@ -1,627 +1,854 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 import 'package:flutter/material.dart';
+// import 'package:google_fonts/google_fonts.dart';
 import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../services/auth_service.dart';
+import '../widgets/project_cards.dart';
+import '../widgets/stats_filter_widget.dart';
 
-import 'package:carousel_slider/carousel_slider.dart'; // Added dependency
-import 'package:lottie/lottie.dart';
-import '../controllers/home_controller.dart';
-
-import '../widgets/stat_tile.dart'; // New widget
-import '../widgets/unit_item.dart';
-import '../widgets/story_view.dart'; // New widget
-import '../utils/responsive.dart';
-import 'my_units_screen.dart';
+import '../widgets/custom_bottom_nav_bar.dart';
 import 'profile_screen.dart';
-import 'refer_and_earn_screen.dart';
-import 'projects_screen.dart';
+// import 'project_sample_screen.dart'; // Will resolve automatically if named correctly
+
+// Mocked Project Sample Screen Path
+const String projectSampleRoute = '/project_sample';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final HomeController _controller = Get.put(HomeController());
+  final ScrollController _scrollController = ScrollController();
+  bool _isFabExpanded = true;
+  int _currentNavIndex = 0;
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String? _selectedProjectId;
 
-  final List<Widget> _pages = [
-    HomeContent(),
-    MyUnitsScreen(),
-    // ReferAndEarnScreen(),
-    ProjectsScreen(),
-    ProfileScreen(), // This is now "Account"
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_scrollListener);
+  }
+
+  void _onDateRangeChanged(DateTime start, DateTime end) {
+    setState(() {
+      _startDate = start;
+      _endDate = end;
+    });
+  }
+
+  void _onProjectChanged(String? projectId) {
+    setState(() {
+      _selectedProjectId = projectId;
+    });
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels > 50 && _isFabExpanded) {
+      setState(() {
+        _isFabExpanded = false;
+      });
+    } else if (_scrollController.position.pixels <= 50 && !_isFabExpanded) {
+      setState(() {
+        _isFabExpanded = true;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_scrollListener);
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Scaffold(
-        backgroundColor: Color(0xfff5f5f5),
-        body: _pages[_controller.selectedIndex.value],
-        bottomNavigationBar: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Top hairline divider
-            Container(
-              height: 0.5, // key difference
-              color: Colors.black.withOpacity(0.12),
+    return Scaffold(
+      backgroundColor: const Color(0xFFF7F8FA),
+      appBar: _currentNavIndex == 0 ? _buildHomeAppBar() : null,
+      body: Stack(
+        children: [
+          // Main Content Area
+          Positioned.fill(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 80), // Space for Nav Bar
+              child: _buildBody(),
             ),
+          ),
 
-            // Actual bottom nav
-            Container(
+          // FLOATING BOTTOM NAV BAR
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: CustomBottomNavBar(
+              currentIndex: _currentNavIndex,
+              onTap: (index) {
+                setState(() {
+                  _currentNavIndex = index;
+                });
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    switch (_currentNavIndex) {
+      case 0:
+        return _buildHomeContent();
+      case 1:
+        return const Center(
+          child: Text("Weekly , Monthly Reports Coming Soon"),
+        );
+      case 2:
+        return const Center(child: Text("Inventory Details Coming Soon"));
+      case 3:
+        return ProfileScreen();
+      default:
+        return _buildHomeContent();
+    }
+  }
+
+  PreferredSizeWidget _buildHomeAppBar() {
+    return AppBar(
+      backgroundColor: const Color(0xFFF7F8FA),
+      elevation: 0,
+      toolbarHeight: 60, // Increased height
+      automaticallyImplyLeading: false,
+      title: Row(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: const Color(0xFF134044),
+              shape: BoxShape.circle,
+            ),
+            padding: const EdgeInsets.all(8), // Increased padding
+            child: const Icon(
+              Icons.bar_chart_outlined,
               color: Colors.white,
-              padding: const EdgeInsets.only(top: 6),
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
+              size: 20, // Increased size
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "Analytics",
+            style: TextStyle(
+              fontSize: 22, // Increased size
+              fontWeight: FontWeight.w700,
+              color: const Color(0xFF134044),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildHomeContent() {
+    return CustomScrollView(
+      controller: _scrollController,
+      slivers: [
+        // TOP SPACING
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+        // DATE FILTER
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverToBoxAdapter(
+            child: StatsFilterWidget(
+              onDateChanged: _onDateRangeChanged,
+              onProjectChanged: _onProjectChanged,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+        // PROJECT CARDS TITLE
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              "LEADS",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+        // PROJECT CARDS GRID
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverGrid(
+            delegate: SliverChildBuilderDelegate((context, index) {
+              return ProjectCardItem(
+                index: index,
+                startDate: _startDate,
+                endDate: _endDate,
+                projectId: _selectedProjectId,
+              );
+            }, childCount: 4),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 14,
+              mainAxisSpacing: 14,
+              childAspectRatio: 1.7,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+        // NEW SITE VISITS CARD (Horizontal)
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverToBoxAdapter(child: _buildSiteVisitsCard()),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+        // INVEST TITLE
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              "CRM",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+        // INVEST GRID
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverGrid(
+            delegate: SliverChildListDelegate([
+              _buildLoanCard(
+                title: "Projected Collections",
+                icon: Icons.account_balance,
+                iconColor: Colors.brown,
+                subtitleWidget: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade700,
+                      height: 1.3,
+                    ),
+                    children: [
+                      TextSpan(
+                        text: "₹0L ",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      TextSpan(
+                        text: "from the units  (Coming soon...)",
+                        style: TextStyle(color: Colors.black87),
+                      ),
+                    ],
+                  ),
                 ),
-                child: BottomNavigationBar(
-                  elevation: 0,
-                  backgroundColor: Colors.white,
-                  currentIndex: _controller.selectedIndex.value,
-                  onTap: _controller.changeTabIndex,
-                  type: BottomNavigationBarType.fixed,
-                  selectedItemColor: Colors.black,
-                  unselectedItemColor: Colors.grey,
-                  selectedLabelStyle: TextStyle(
-                    fontFamily: 'Host Grotesk',
-                    fontSize: 14,
+              ),
+              _buildGoldCard(),
+            ]),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.4,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+
+        // MORE TITLE
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverToBoxAdapter(
+            child: Text(
+              "MORE",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey.shade500,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+        // MORE GRID
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          sliver: SliverGrid(
+            delegate: SliverChildListDelegate([
+              _buildLoanCard(
+                title: "Call Hours",
+                icon: Icons.qr_code,
+                iconColor: Colors.black,
+                subtitleWidget: Text(
+                  "(Coming soon...)",
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey.shade700,
+                    height: 1.3,
                   ),
-                  unselectedLabelStyle: TextStyle(
-                    fontFamily: 'Host Grotesk',
-                    fontSize: 14,
+                ),
+              ),
+              _buildLoanCard(
+                title: "Calls Count",
+                icon: Icons.shield,
+                iconColor: Colors.red.shade300,
+                subtitleWidget: RichText(
+                  text: TextSpan(
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: Colors.grey.shade700,
+                      height: 1.3,
+                    ),
+                    children: [TextSpan(text: "(Coming soon...)")],
                   ),
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/Icon Sets.png',
-                        width: 22,
-                        color:
-                            _controller.selectedIndex.value == 0
-                                ? Colors.black
-                                : Colors.grey,
-                      ),
-                      label: "Home",
+                ),
+              ),
+            ]),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: 1.4,
+            ),
+          ),
+        ),
+        const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+        // Credit Tracker Full Width
+        SliverPadding(
+          padding: const EdgeInsets.fromLTRB(12, 0, 12, 100),
+          sliver: SliverToBoxAdapter(
+            child: GestureDetector(
+              onTap: () => Get.toNamed(projectSampleRoute),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: Colors.orange.shade100,
+                          radius: 18,
+                          child: const Icon(Icons.speed, color: Colors.orange),
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "Leads Health",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
+                            ),
+                            Text(
+                              "Sales report with personalised tips",
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: Colors.grey.shade600,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/units.png',
-                        width: 22,
-                        color:
-                            _controller.selectedIndex.value == 1
-                                ? Colors.black
-                                : Colors.grey,
-                      ),
-                      label: "My Units",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Icon(Icons.card_giftcard_outlined),
-                      label: "Refer & Earn",
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Image.asset(
-                        'assets/icons/Icon Sets 3.png',
-                        width: 22,
-                        color:
-                            _controller.selectedIndex.value == 3
-                                ? Colors.black
-                                : Colors.grey,
-                      ),
-                      label: "Account",
+                    const Icon(
+                      Icons.arrow_forward,
+                      size: 16,
+                      color: Color(0xFF2C9F6E),
                     ),
                   ],
                 ),
               ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSiteVisitsCard() {
+    final AuthService authService = Get.find<AuthService>();
+
+    return Obx(() {
+      final String svCollection = authService.siteVisitsCollectionName.value;
+      final String leadsCollection = authService.leadsCollectionName.value;
+
+      if (svCollection.isEmpty || leadsCollection.isEmpty) {
+        return const SizedBox.shrink();
+      }
+
+      Future<Map<String, int>> fetchData() async {
+        Query svQuery = FirebaseFirestore.instance.collection(svCollection);
+        Query leadsQuery = FirebaseFirestore.instance.collection(
+          leadsCollection,
+        );
+
+        if (_startDate != null && _endDate != null) {
+          int startMillis = _startDate!.millisecondsSinceEpoch;
+          int endMillis = _endDate!.millisecondsSinceEpoch;
+          svQuery = svQuery
+              .where('svHappendOn', isGreaterThanOrEqualTo: startMillis)
+              .where('svHappendOn', isLessThan: endMillis);
+          leadsQuery = leadsQuery
+              .where('Date', isGreaterThanOrEqualTo: startMillis)
+              .where('Date', isLessThan: endMillis);
+        }
+
+        if (_selectedProjectId != null) {
+          // Robust filtering for specific project
+          // Try ID first
+          try {
+            final svIdParams = svQuery.where(
+              'projectId',
+              isEqualTo: _selectedProjectId,
+            );
+            final leadsIdParams = leadsQuery.where(
+              'ProjectId',
+              isEqualTo: _selectedProjectId,
+            );
+
+            // Check if ID query works (count > -1 is just a check, we want count)
+            // Actually just run it. If it fails, catch and fallback.
+            AggregateQuerySnapshot svSnap = await svIdParams.count().get();
+            AggregateQuerySnapshot leadsSnap =
+                await leadsIdParams.count().get();
+
+            return {
+              'siteVisits': svSnap.count ?? 0,
+              'totalLeads': leadsSnap.count ?? 0,
+            };
+          } catch (e) {
+            // Fallback to Name
+            // Need to get project name from ID
+            final project = authService.projects.firstWhere(
+              (p) => p['id'] == _selectedProjectId,
+              orElse: () => {'name': ''},
+            );
+            final projectName = project['name'] ?? '';
+
+            if (projectName.isNotEmpty) {
+              svQuery = svQuery.where('projectName', isEqualTo: projectName);
+              leadsQuery = leadsQuery.where('Project', isEqualTo: projectName);
+
+              AggregateQuerySnapshot svSnap = await svQuery.count().get();
+              AggregateQuerySnapshot leadsSnap = await leadsQuery.count().get();
+
+              return {
+                'siteVisits': svSnap.count ?? 0,
+                'totalLeads': leadsSnap.count ?? 0,
+              };
+            }
+          }
+        }
+
+        // Default (All Projects or Fallback failed)
+        // If _selectedProjectId is null, we just run the base query (filtered by date)
+        if (_selectedProjectId == null) {
+          AggregateQuerySnapshot svSnap = await svQuery.count().get();
+          AggregateQuerySnapshot leadsSnap = await leadsQuery.count().get();
+          return {
+            'siteVisits': svSnap.count ?? 0,
+            'totalLeads': leadsSnap.count ?? 0,
+          };
+        }
+
+        return {'siteVisits': 0, 'totalLeads': 0};
+      }
+
+      return FutureBuilder<Map<String, int>>(
+        future: fetchData(),
+        builder: (context, snapshot) {
+          int siteVisits = 0;
+          int totalLeads = 1; // Avoid div by zero
+
+          if (snapshot.hasData) {
+            siteVisits = snapshot.data!['siteVisits'] ?? 0;
+            totalLeads = snapshot.data!['totalLeads'] ?? 1;
+            if (totalLeads == 0) totalLeads = 1;
+          }
+
+          double progress = siteVisits / totalLeads;
+          if (progress > 1.0) progress = 1.0;
+          if (progress < 0.0) progress = 0.0;
+
+          // Format for display
+          String svDisplay = snapshot.hasData ? "$siteVisits" : "...";
+
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [],
+            ),
+            child: Row(
+              children: [
+                // Icon Box
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE6A96B).withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(
+                    Icons.location_on_outlined,
+                    color: Color(0xFFE6A96B),
+                    size: 24,
+                  ),
+                ),
+                const SizedBox(width: 16),
+
+                // Content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "Site Visits",
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          Text(
+                            svDisplay,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: const Color(0xFF1F1F1F),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Progress Bar
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: LinearProgressIndicator(
+                          value: progress,
+                          backgroundColor: Colors.grey[200],
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                            Color(0xFFE6A96B),
+                          ),
+                          minHeight: 8,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        "${(progress * 100).toStringAsFixed(1)}% of total leads",
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+    });
+  }
+
+  Widget _buildGoldCard() {
+    return GestureDetector(
+      onTap: () => Get.toNamed(projectSampleRoute),
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFFFBEBF9), Color(0xFFFFF6E5)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.white),
+        ),
+        padding: const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    "Claimed\nAmount",
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: const Color(0xFF2D1E2F),
+                      height: 1.1,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              "Know the details!",
+              style: TextStyle(fontSize: 10, color: Colors.grey.shade600),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "(Coming soon...)",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: const Color(0xFF2D1E2F),
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward,
+                  size: 16,
+                  color: Color(0xFF2C9F6E),
+                ),
+              ],
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class HomeContent extends StatefulWidget {
-  const HomeContent({super.key});
-
-  @override
-  State<HomeContent> createState() => _HomeContentState();
-}
-
-class _HomeContentState extends State<HomeContent> {
-  final HomeController _controller = Get.find<HomeController>();
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          // 1. Top Carousel Section
-          HomeCarousel(), // Replaced _buildCarouselSection usage
-
-          SizedBox(height: 20),
-
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.05),
-            child: Column(
+  Widget _buildLoanCard({
+    required String title,
+    required Widget subtitleWidget,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return GestureDetector(
+      onTap: () => Get.toNamed(projectSampleRoute),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 2. Discover the World / Summary Section
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      "DISCOVER THE LUXURY WITH ",
-                      style: TextStyle(
-                        fontFamily: 'Host Grotesk',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
-                        letterSpacing: 1.2,
-                      ),
+                Expanded(
+                  child: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
                     ),
-                    Image.asset(
-                      'assets/logo1.png',
-                      height: 14, // Match font size
-                      fit: BoxFit.contain,
-                      color: Colors.grey[600],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 3),
-                Text(
-                  "Summary", // Matching reference text style
-                  style: TextStyle(
-                    fontFamily: 'Host Grotesk',
-                    fontSize: 18,
-                    //fontWeight: FontWeight.bold,
-                    color: Colors.black,
                   ),
                 ),
-                SizedBox(height: 10),
-                _buildSummarySection(screenWidth),
-
-                SizedBox(height: 20),
-
-                // 3. My Units Section
-                Text(
-                  "MADE FOR EFFORTLESS STAYS",
-                  style: TextStyle(
-                    fontFamily: 'Host Grotesk',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[600],
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "My Units", // Matching reference header style
-                      style: TextStyle(
-                        fontFamily: 'Host Grotesk',
-                        fontSize: 18,
-                        //fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                _buildMyUnitsSection(screenWidth, screenHeight),
-
-                SizedBox(height: 20),
-
-                // 4. Other Properties (Stories)
-                Text(
-                  "EXPLORE MORE",
-                  style: TextStyle(
-                    fontFamily: 'Host Grotesk',
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.grey[600],
-                    letterSpacing: 1.2,
-                  ),
-                ),
-                SizedBox(height: 3),
-                Text(
-                  "Our other Properties",
-                  style: TextStyle(
-                    fontFamily: 'Host Grotesk',
-                    fontSize: 18,
-                    //fontWeight: FontWeight.bold,
-                    color: Colors.black,
-                  ),
-                ),
-                SizedBox(height: 10),
-                _buildStoriesSection(screenWidth, screenHeight),
-
-                SizedBox(height: 20),
+                Icon(icon, color: iconColor, size: 28),
               ],
             ),
-          ),
-          // Footer
-          _buildFooterSection(screenWidth),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSummarySection(double screenWidth) {
-    // Futuristic minimal tiles
-    return SizedBox(
-      height: 85,
-      child: Obx(
-        () => ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: _controller.summaryData.length,
-          itemBuilder: (context, index) {
-            final item = _controller.summaryData[index];
-            return Padding(
-              padding: const EdgeInsets.only(right: 10.0),
-
-              child: SizedBox(
-                width: screenWidth * 0.36, // Card width
-                child: StatTile(
-                  label: item['label']!,
-                  value: item['value']!,
-                  screenWidth: screenWidth,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(child: subtitleWidget),
+                const Icon(
+                  Icons.arrow_forward,
+                  size: 20,
+                  color: Color(0xFF2C9F6E),
                 ),
-              ),
-            );
-          },
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildMyUnitsSection(double screenWidth, double screenHeight) {
-    const String unitPath = '/spark_units/NQ1GGynwiDg58BD1kKPv';
-    //NQ1GGynwiDg58BD1kKPv
-    return StreamBuilder<DocumentSnapshot>(
-      stream: FirebaseFirestore.instance.doc(unitPath).snapshots(),
-      builder: (context, unitSnapshot) {
-        if (unitSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: Lottie.asset(
-              'assets/Loading Dots Blue.json',
-              height: 200,
-              width: 200,
-            ),
-          );
-        }
-
-        if (!unitSnapshot.hasData || !unitSnapshot.data!.exists) {
-          return Center(
-            child: Container(
-              padding: EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.grey[100],
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text("Unit not found."),
-            ),
-          );
-        }
-
-        final unitDoc = unitSnapshot.data!;
-        final data = unitDoc.data() as Map<String, dynamic>?;
-
-        if (data == null) return SizedBox();
-
-        String? projectId = data['project_id'];
-
-        return FutureBuilder<DocumentSnapshot?>(
-          future:
-              projectId != null
-                  ? FirebaseFirestore.instance
-                      .collection('spark_projects')
-                      .doc(projectId)
-                      .get()
-                  : Future.value(null),
-          builder: (context, projectSnapshot) {
-            String projectName = 'Unknown Project';
-
-            if (projectSnapshot.hasData &&
-                projectSnapshot.data != null &&
-                projectSnapshot.data!.exists) {
-              projectName =
-                  projectSnapshot.data!.get('projectName') ?? 'Unknown Project';
-            }
-
-            return Column(
-              children: [UnitItem(unit: unitDoc, projectName: projectName)],
-            );
-          },
-        );
+  Widget _buildPersonalLoanCard() {
+    return GestureDetector(
+      onTap: () {
+        Get.toNamed(projectSampleRoute);
       },
-    );
-  }
-
-  Widget _buildStoriesSection(double screenWidth, double screenHeight) {
-    return SizedBox(
-      height: screenHeight * 0.5,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: _controller.stories.length,
-        itemBuilder: (context, index) {
-          final story = _controller.stories[index];
-          return GestureDetector(
-            onTap: () {
-              // Open Story View
-              Get.to(
-                () => StoryView(
-                  title: story['title'] as String,
-                  videoUrl: story['videoUrl'] as String,
-                  thumbnail: story['thumbnail'] as String,
-                  address: story['address'] as String,
-                ),
-              );
-            },
-            child: Container(
-              width: screenWidth * 0.77,
-              margin: EdgeInsets.only(right: 7),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8), // Rounded corners
-                image: DecorationImage(
-                  image: AssetImage(story['thumbnail'] as String),
-                  fit: BoxFit.cover,
-                  colorFilter: ColorFilter.mode(
-                    Colors.black.withOpacity(0.1),
-                    BlendMode.darken,
+      child: Container(
+        height: 320, // Approximate height
+        width: double.infinity,
+        decoration: BoxDecoration(
+          color: const Color(0xFF134044), // Dark Green
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Stack(
+          children: [
+            // Right Image Mockup
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: 160,
+                height: 240,
+                // Make a placeholder image of a person
+                decoration: BoxDecoration(
+                  image: const DecorationImage(
+                    image: NetworkImage(
+                      "https://media.istockphoto.com/id/1358997053/photo/young-man-stock-phooto.webp?s=612x612&w=is&k=20&c=xls3atNouxLbNj6w0UW26uYT_kXCueIYh8zslIzBfKo=",
+                    ), // Placeholder
+                    fit: BoxFit.cover,
+                    // colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.1), BlendMode.darken),
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomRight: Radius.circular(20),
                   ),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 5,
-                    offset: Offset(0, 2),
-                  ),
-                ],
+                alignment: Alignment.bottomCenter,
               ),
-              child: Stack(
+            ),
+
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Positioned(
-                    bottom: 10,
-                    left: 10,
-                    right: 10,
-                    child: Text(
-                      story['title'] as String,
-                      style: TextStyle(
-                        fontFamily: 'Host Grotesk',
-                        color: Colors.white,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFE8D5B5),
+                        ),
+                        child: Icon(
+                          Icons.currency_rupee,
+                          size: 12,
+                          color: Colors.brown,
+                        ),
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      const SizedBox(width: 8),
+                      Text(
+                        "Personal Loan",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    "Get a loan up to",
+                    style: TextStyle(color: Colors.white70, fontSize: 12),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    "₹10,00,000",
+                    style: TextStyle(
+                      color: const Color(0xFFC5E8CF), // Light Green text
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      height: 1.1,
+                    ),
+                  ),
+                  Text(
+                    "in 10 mins",
+                    style: TextStyle(
+                      color: const Color(0xFFC5E8CF),
+                      fontSize: 32,
+                      fontWeight: FontWeight.w700,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      const Icon(
+                        Icons.assignment_outlined,
+                        color: Colors.white70,
+                        size: 18,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        "Zero documentation",
+                        style: TextStyle(color: Colors.white70, fontSize: 14),
+                      ),
+                    ],
+                  ),
+                  const Spacer(),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(color: Colors.transparent),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          "Apply for loan",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.arrow_forward,
+                            size: 16,
+                            color: Color(0xFF134044),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
             ),
-          );
-        },
-      ),
-    );
-  }
-
-  Widget _buildFooterSection(double screenWidth) {
-    double fontSize = Responsive.getFontSize(screenWidth, 16);
-    double iconSize = screenWidth * 0.075;
-    double titleSize = Responsive.getFontSize(screenWidth, 20);
-    double shubaFontSize = Responsive.getFontSize(screenWidth, 28);
-
-    return Container(
-      color: Color(0xff191B1C),
-      padding: EdgeInsets.symmetric(
-        vertical: screenWidth * 0.05,
-        horizontal: screenWidth * 0.08,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Image.asset(
-              'assets/logo1.png',
-              width: shubaFontSize * 6,
-              fit: BoxFit.contain,
-            ),
-          ),
-          SizedBox(height: screenWidth * 0.03),
-          Text(
-            "address",
-            style: TextStyle(
-              fontFamily: 'Host Grotesk',
-              color: Colors.white,
-              fontSize: titleSize,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 6),
-          Text(
-            "#1,HSR Sector 1, Bangalore, Karnataka-560049",
-            style: TextStyle(
-              fontFamily: 'Host Grotesk',
-              color: Color(0xff737576),
-              fontSize: fontSize,
-              fontWeight: FontWeight.w600,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: screenWidth * 0.03),
-          GestureDetector(
-            onTap: () {},
-            child: Text(
-              "View in Map",
-              style: TextStyle(
-                fontFamily: 'Host Grotesk',
-                color: Color(0xff737576),
-                fontSize: fontSize,
-                fontWeight: FontWeight.w400,
-                decoration: TextDecoration.underline,
-              ),
-            ),
-          ),
-          SizedBox(height: screenWidth * 0.06),
-          Text(
-            "Contact Us",
-            style: TextStyle(
-              fontFamily: 'Host Grotesk',
-              color: Colors.white,
-              fontSize: titleSize,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          SizedBox(height: screenWidth * 0.015),
-          Text(
-            "+91 1234567890 || www.maahomes.in",
-            style: TextStyle(
-              fontFamily: 'Host Grotesk',
-              color: Color(0xff737576),
-              fontSize: fontSize,
-              fontWeight: FontWeight.w400,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: screenWidth * 0.05),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _buildSocialIcon('assets/whatsapp.png', iconSize, () {}),
-              _buildSocialIcon('assets/insta.png', iconSize, () {}),
-              _buildSocialIcon('assets/x.png', iconSize, () {}),
-              _buildSocialIcon('assets/fb.png', iconSize, () {}),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSocialIcon(String assetPath, double size, VoidCallback onTap) {
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Image.asset(
-          assetPath,
-          width: size,
-          height: size,
-          fit: BoxFit.contain,
-          color: Colors.white,
+          ],
         ),
-      ),
-    );
-  }
-}
-
-class HomeCarousel extends StatefulWidget {
-  const HomeCarousel({super.key});
-
-  @override
-  _HomeCarouselState createState() => _HomeCarouselState();
-}
-
-class _HomeCarouselState extends State<HomeCarousel> {
-  int _current = 0;
-  final List<String> carouselImages = [
-    'https://maahomes.in/media/LANDING-PAGE-landscape_yCQHN7l.png',
-    'https://maahomes.in/media/bel-3_QElfrCg.jpg',
-    'https://maahomes.in/media/WhatsApp_Image_2024-06-01_at_6.32.47_PM.jpeg',
-    'https://maahomes.in/media/1383X446px_Panchajanyaa_Maahomes-web-banner.png',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
-    return Container(
-      // Removed ClipRRect for sharp corners
-      child: Stack(
-        children: [
-          CarouselSlider(
-            options: CarouselOptions(
-              height: screenHeight * 0.4,
-              viewportFraction: 1.0,
-              autoPlay: true,
-              autoPlayInterval: Duration(seconds: 4),
-              enableInfiniteScroll: true,
-              scrollPhysics: BouncingScrollPhysics(),
-              onPageChanged: (index, reason) {
-                setState(() {
-                  _current = index;
-                });
-              },
-            ),
-            items:
-                carouselImages.map((i) {
-                  return Builder(
-                    builder: (BuildContext context) {
-                      return Container(
-                        width: screenWidth,
-                        decoration: BoxDecoration(color: Colors.grey[200]),
-                        child:
-                            i.startsWith('http')
-                                ? Image.network(
-                                  i,
-                                  fit: BoxFit.fitHeight,
-                                  errorBuilder:
-                                      (context, error, stackTrace) => Center(
-                                        child: Icon(
-                                          Icons.broken_image_outlined,
-                                          size: 50,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                )
-                                : Image.asset(
-                                  i,
-                                  fit: BoxFit.fitHeight,
-                                  errorBuilder:
-                                      (context, error, stackTrace) => Center(
-                                        child: Icon(
-                                          Icons.image_not_supported_outlined,
-                                          size: 50,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                ),
-                      );
-                    },
-                  );
-                }).toList(),
-          ),
-          Positioned(
-            bottom: 20,
-            right: 20,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children:
-                  carouselImages.asMap().entries.map((entry) {
-                    return Container(
-                      width: 20.0,
-                      height: 3.0,
-                      margin: EdgeInsets.symmetric(horizontal: 2.0),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(2),
-                        color:
-                            _current == entry.key
-                                ? Colors.white
-                                : Colors.white.withOpacity(0.4),
-                      ),
-                    );
-                  }).toList(),
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
+import '../utils/project_style.dart';
 
 class DonutChart extends StatelessWidget {
   final double paid;
@@ -54,11 +55,7 @@ class DonutChart extends StatelessWidget {
               ),
               SizedBox(height: size * 0.02),
               Text(
-                NumberFormat.currency(
-                  locale: 'en_IN',
-                  symbol: '₹',
-                  decimalDigits: 0,
-                ).format(remainingBalance),
+                ProjectStyle.formatCurrency(remainingBalance),
                 style: TextStyle(
                   fontSize: size * 0.12, // Increased balance font size
                   fontFamily: 'Host Grotesk',

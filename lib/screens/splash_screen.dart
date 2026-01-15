@@ -83,7 +83,7 @@ class _SplashScreenState extends State<SplashScreen>
     if (authService.currentUser.value != null) {
       Get.offAllNamed('/home');
     } else {
-      Get.offAllNamed('/login');
+      Get.offAllNamed('/permission');
     }
   }
 

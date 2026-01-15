@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
+
 import '../models/unit_model.dart';
 import '../controllers/project_controller.dart';
+import '../utils/project_style.dart';
 import 'needs_attention_sheet.dart';
 
 class NeedsAttentionDetailSheet extends StatelessWidget {
@@ -74,13 +75,7 @@ class NeedsAttentionDetailSheet extends StatelessWidget {
           const SizedBox(height: 24),
           _buildDetailRow(
             'Due Amount',
-            NumberFormat.currency(
-              locale: 'en_IN',
-              symbol: '₹',
-              decimalDigits: 0,
-            ).format(
-              double.tryParse(unit.amount?.replaceAll(',', '') ?? '0') ?? 0,
-            ),
+            "₹ ${ProjectStyle.formatCurrency(double.tryParse(unit.amount?.replaceAll(',', '') ?? '0') ?? 0)}",
           ),
           const Divider(height: 32),
           _buildDetailRow(

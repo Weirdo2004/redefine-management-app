@@ -10,6 +10,8 @@ import 'package:customerapp/screens/refer_screen.dart';
 import 'package:customerapp/screens/signup_screen.dart';
 import 'package:customerapp/screens/splash_screen.dart';
 import 'package:customerapp/screens/transaction_screen.dart';
+import 'package:customerapp/screens/permission_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -17,13 +19,15 @@ import 'firebase_options.dart';
 import 'screens/document_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/payment_schedule_screen.dart';
+import 'screens/leads_detail_screen.dart';
+
 import 'screens/project_detail_screen.dart';
 import 'screens/transaction_detail_screen.dart';
 import 'services/auth_service.dart';
 import 'utils/project_style.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized properly
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized properlyfg
 
   try {
     await Firebase.initializeApp(
@@ -63,6 +67,10 @@ class MyApp extends StatelessWidget {
         GetPage(name: '/login', page: () => LoginScreen()),
         GetPage(name: '/home', page: () => HomeScreen()),
         GetPage(name: '/project-detail', page: () => ProjectDetailScreen()),
+        GetPage(
+          name: '/project_sample',
+          page: () => const ProjectSampleScreen(),
+        ),
         GetPage(name: '/payment-schedule', page: () => PaymentScheduleScreen()),
         GetPage(name: '/cost-sheet', page: () => CostSheetScreen()),
         GetPage(name: '/activity-log', page: () => ActivityLogScreen()),
@@ -77,7 +85,12 @@ class MyApp extends StatelessWidget {
           name: '/transaction-detail',
           page: () => TransactionDetailsScreen(),
         ),
+        GetPage(
+          name: '/transaction-detail',
+          page: () => TransactionDetailsScreen(),
+        ),
         GetPage(name: '/notification', page: () => NotificationsScreen()),
+        GetPage(name: '/permission', page: () => PermissionScreen()),
       ],
     );
   }

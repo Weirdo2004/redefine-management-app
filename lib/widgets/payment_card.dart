@@ -89,7 +89,7 @@ class _PaymentCardState extends State<PaymentCard> {
                           ),
                           SizedBox(height: 2),
                           Text(
-                            widget.payment.amount,
+                            "₹ ${ProjectStyle.formatCurrency(widget.payment.amount)}",
                             style: ProjectStyle.bodyText.copyWith(
                               fontSize: widget.screenHeight * 0.015,
                               color: ProjectStyle.secondaryTextColor,
@@ -169,7 +169,7 @@ class _PaymentCardState extends State<PaymentCard> {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        'Rec: ${widget.payment.received}',
+                        'Rec: ₹ ${ProjectStyle.formatCurrency(widget.payment.received)}',
                         style: ProjectStyle.smallText.copyWith(
                           fontSize: widget.screenHeight * 0.014,
                           color: Colors.green,
@@ -177,7 +177,7 @@ class _PaymentCardState extends State<PaymentCard> {
                         ),
                       ),
                       Text(
-                        'Bal: ${widget.payment.balance}',
+                        'Bal: ₹ ${ProjectStyle.formatCurrency(widget.payment.balance)}',
                         style: ProjectStyle.smallText.copyWith(
                           fontSize: widget.screenHeight * 0.014,
                           color: Colors.red,

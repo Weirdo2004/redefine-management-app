@@ -1,10 +1,7 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 import 'package:get/get.dart';
 import '../controllers/home_controller.dart';
 import '../utils/project_style.dart';
-import '../widgets/unit_item.dart';
 
 class MyUnitsScreen extends StatelessWidget {
   const MyUnitsScreen({super.key});
@@ -12,7 +9,7 @@ class MyUnitsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    const String unitPath = '/spark_units/NQ1GGynwiDg58BD1kKPv';
+    // const String unitPath = '/spark_units/NQ1GGynwiDg58BD1kKPv';
 
     // Access HomeController to switch tabs
     final HomeController homeController = Get.find<HomeController>();
@@ -53,7 +50,7 @@ class MyUnitsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                StreamBuilder<DocumentSnapshot>(
+                /* StreamBuilder<DocumentSnapshot>(
                   stream: FirebaseFirestore.instance.doc(unitPath).snapshots(),
                   builder: (context, unitSnapshot) {
                     if (unitSnapshot.connectionState ==
@@ -113,6 +110,10 @@ class MyUnitsScreen extends StatelessWidget {
                       },
                     );
                   },
+                ), */
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  child: const Text("My Units Data (Mocked)"),
                 ),
               ],
             ),

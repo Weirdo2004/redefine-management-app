@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+
 import '../models/transaction_model.dart';
 import '../utils/project_style.dart';
 
@@ -64,11 +64,7 @@ class _TransactionItemState extends State<TransactionItem> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      NumberFormat.currency(
-                        locale: 'en_IN',
-                        symbol: '₹ ',
-                        decimalDigits: 0,
-                      ).format(widget.transaction.amount),
+                      "₹ ${ProjectStyle.formatCurrency(widget.transaction.amount)}",
                       style: ProjectStyle.headlineText.copyWith(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

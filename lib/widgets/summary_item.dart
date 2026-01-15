@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+// import 'package:google_fonts/google_fonts.dart';
 
 class SummaryItem extends StatelessWidget {
   final String value;
@@ -28,7 +28,7 @@ class SummaryItem extends StatelessWidget {
         children: [
           Text(
             value,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
               fontSize: screenWidth * 0.039,
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -37,7 +37,7 @@ class SummaryItem extends StatelessWidget {
           SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.outfit(
+            style: TextStyle(
               fontSize: screenWidth * 0.03,
               color: Color(0xff656567),
               fontWeight: FontWeight.w400,
