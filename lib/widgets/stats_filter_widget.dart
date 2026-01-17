@@ -452,7 +452,7 @@ class _StatsFilterWidgetState extends State<StatsFilterWidget> {
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                   color: const Color(0xFF2C9F6E).withOpacity(0.2),
                   width: 1.5,
@@ -492,7 +492,7 @@ class _StatsFilterWidgetState extends State<StatsFilterWidget> {
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(24),
               border: Border.all(
                 color: const Color(0xFF2C9F6E).withOpacity(0.2),
                 width: 1.5,

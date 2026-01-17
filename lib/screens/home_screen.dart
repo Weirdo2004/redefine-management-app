@@ -343,7 +343,15 @@ class _HomeScreenState extends State<HomeScreen> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 100),
           sliver: SliverToBoxAdapter(
             child: GestureDetector(
-              onTap: () => Get.toNamed(projectSampleRoute),
+              onTap:
+                  () => Get.toNamed(
+                    projectSampleRoute,
+                    arguments: {
+                      'projectId': _selectedProjectId,
+                      'startDate': _startDate?.millisecondsSinceEpoch,
+                      'endDate': _endDate?.millisecondsSinceEpoch,
+                    },
+                  ),
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
@@ -507,78 +515,93 @@ class _HomeScreenState extends State<HomeScreen> {
           // Format for display
           String svDisplay = snapshot.hasData ? "$siteVisits" : "...";
 
-          return Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              boxShadow: [],
-            ),
-            child: Row(
-              children: [
-                // Icon Box
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFE6A96B).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
+          return GestureDetector(
+            onTap: () {
+              Get.toNamed(
+                projectSampleRoute,
+                arguments: {
+                  'projectId': _selectedProjectId,
+                  'startDate': _startDate?.millisecondsSinceEpoch,
+                  'endDate': _endDate?.millisecondsSinceEpoch,
+                },
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [],
+              ),
+              child: Row(
+                children: [
+                  // Icon Box
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFE6A96B).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.location_on_outlined,
+                      color: Color(0xFFE6A96B),
+                      size: 24,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.location_on_outlined,
-                    color: Color(0xFFE6A96B),
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
+                  const SizedBox(width: 16),
 
-                // Content
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            "Site Visits",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black87,
+                  // Content
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Site Visits",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                          Text(
-                            svDisplay,
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: const Color(0xFF1F1F1F),
+                            Text(
+                              svDisplay,
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: const Color(0xFF1F1F1F),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      // Progress Bar
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: progress,
-                          backgroundColor: Colors.grey[200],
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                            Color(0xFFE6A96B),
-                          ),
-                          minHeight: 8,
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        "${(progress * 100).toStringAsFixed(1)}% of total leads",
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                      ),
-                    ],
+                        const SizedBox(height: 8),
+                        // Progress Bar
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            backgroundColor: Colors.grey[200],
+                            valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFFE6A96B),
+                            ),
+                            minHeight: 8,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          "${(progress * 100).toStringAsFixed(1)}% of total leads",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },
@@ -588,7 +611,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildGoldCard() {
     return GestureDetector(
-      onTap: () => Get.toNamed(projectSampleRoute),
+      onTap:
+          () => Get.toNamed(
+            projectSampleRoute,
+            arguments: {
+              'projectId': _selectedProjectId,
+              'startDate': _startDate?.millisecondsSinceEpoch,
+              'endDate': _endDate?.millisecondsSinceEpoch,
+            },
+          ),
       child: Container(
         decoration: BoxDecoration(
           gradient: const LinearGradient(
@@ -656,7 +687,15 @@ class _HomeScreenState extends State<HomeScreen> {
     required Color iconColor,
   }) {
     return GestureDetector(
-      onTap: () => Get.toNamed(projectSampleRoute),
+      onTap:
+          () => Get.toNamed(
+            projectSampleRoute,
+            arguments: {
+              'projectId': _selectedProjectId,
+              'startDate': _startDate?.millisecondsSinceEpoch,
+              'endDate': _endDate?.millisecondsSinceEpoch,
+            },
+          ),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -706,7 +745,14 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildPersonalLoanCard() {
     return GestureDetector(
       onTap: () {
-        Get.toNamed(projectSampleRoute);
+        Get.toNamed(
+          projectSampleRoute,
+          arguments: {
+            'projectId': _selectedProjectId,
+            'startDate': _startDate?.millisecondsSinceEpoch,
+            'endDate': _endDate?.millisecondsSinceEpoch,
+          },
+        );
       },
       child: Container(
         height: 320, // Approximate height

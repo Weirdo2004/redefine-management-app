@@ -550,7 +550,14 @@ class ProjectCardItem extends StatelessWidget {
       builder:
           (context) => GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/project_sample');
+              Get.toNamed(
+                '/project_sample',
+                arguments: {
+                  'projectId': projectId,
+                  'startDate': startDate?.millisecondsSinceEpoch,
+                  'endDate': endDate?.millisecondsSinceEpoch,
+                },
+              );
             },
             child: Container(
               padding: const EdgeInsets.fromLTRB(14, 14, 14, 12),

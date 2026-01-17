@@ -14,18 +14,13 @@ class ProjectSampleScreen extends StatefulWidget {
 }
 
 class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
-  bool isSrCitizen = false;
-  String selectedTimePeriod = 'Hours'; // Hours, Days, Weeks, Years
-  final List<String> timePeriodOptions = ['Hours', 'Days', 'Weeks', 'Years'];
-  OverlayEntry? _overlayEntry;
-  final LayerLink _layerLink = LayerLink();
-  bool _isDropdownOpen = false;
-  List<ProjectStats> _projectStats = [];
-  bool _isLoadingStats = true;
-
   // New State for Dynamic Filtering
   String? _selectedProjectId;
   String _selectedProjectName = "All Projects"; // Display name
+  DateTime? _startDate;
+  DateTime? _endDate;
+  String _selectedFilter = 'Today'; // Default filter name
+
   Map<String, dynamic> _chartData = {'labels': [], 'data': [], 'max': 100.0};
   bool _isLoadingChart = true;
 
@@ -35,11 +30,102 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
   int _sUnqualifiedLeads = 0;
   bool _isLoadingSummary = true;
 
+  // Robust Filter Cache
+  Map<String, dynamic>? _cachedRobustParams;
+
+  // Project Stats State
+  List<ProjectStats> _projectStats = [];
+  bool _isLoadingStats = true;
+
   @override
   void initState() {
     super.initState();
+    _handleArguments();
     // Defer fetching to allow access to context/providers if needed, though Get.find works immediately
-    _fetchData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _fetchData();
+    });
+  }
+
+  void _handleArguments() {
+    final args = Get.arguments;
+    if (args != null && args is Map) {
+      if (args['projectId'] != null) {
+        _selectedProjectId = args['projectId'];
+        final AuthService authService = Get.find<AuthService>();
+        final project = authService.projects.firstWhere(
+          (p) => p['id'] == _selectedProjectId,
+          orElse: () => {'name': 'All Projects'},
+        );
+        _selectedProjectName = project['name'] ?? 'All Projects';
+      }
+
+      if (args['startDate'] != null) {
+        _startDate = DateTime.fromMillisecondsSinceEpoch(args['startDate']);
+      }
+      if (args['endDate'] != null) {
+        _endDate = DateTime.fromMillisecondsSinceEpoch(args['endDate']);
+      }
+
+      // If dates are still null (e.g. passed as null), default to Today
+      if (_startDate == null || _endDate == null) {
+        _applyFilter('Today');
+      } else {
+        _deduceFilterLabel();
+      }
+    } else {
+      // Default initialization if no args
+      _applyFilter('Today');
+    }
+  }
+
+  void _deduceFilterLabel() {
+    // logic to guess label if needed, or just set to Custom
+    // or we could have passed the label.
+    // For now let's assume if dates are set, we respect them.
+    if (_startDate != null) {
+      // If perfectly matches Today, etc?
+      // Let's just say "Date Range" or similar if we can't be sure
+      _selectedFilter = "Custom";
+      // Improvement: Pass filter name from Home Screen would be cleaner.
+      // But let's check standard ranges.
+      final now = DateTime.now();
+      final todayStart = DateTime(now.year, now.month, now.day);
+      if (_startDate == todayStart) {
+        _selectedFilter = 'Today';
+      } else if (_startDate == todayStart.subtract(Duration(days: 1)) &&
+          _endDate!.difference(_startDate!).inDays == 1) {
+        _selectedFilter = 'Previous Day';
+      }
+      // ... etc.
+    }
+  }
+
+  void _applyFilter(String filter) {
+    final now = DateTime.now();
+    final todayStart = DateTime(now.year, now.month, now.day);
+
+    if (filter == 'Today') {
+      _startDate = todayStart;
+      _endDate = todayStart.add(const Duration(days: 1));
+    } else if (filter == 'Previous Day') {
+      _startDate = todayStart.subtract(const Duration(days: 1));
+      _endDate = _startDate!.add(const Duration(days: 1));
+    } else if (filter == 'Last 7 Days') {
+      _startDate = todayStart.subtract(const Duration(days: 6));
+      _endDate = todayStart.add(const Duration(days: 1));
+    } else if (filter == 'Last 30 Days') {
+      _startDate = todayStart.subtract(const Duration(days: 29));
+      _endDate = todayStart.add(const Duration(days: 1));
+    } else if (filter == 'Last Month') {
+      _startDate = DateTime(now.year, now.month - 1, 1);
+      _endDate = DateTime(now.year, now.month, 1);
+    } else if (filter == 'All Dates') {
+      _startDate = DateTime(1970);
+      _endDate = DateTime(2100);
+    }
+
+    _selectedFilter = filter;
   }
 
   void _fetchData() {
@@ -48,47 +134,58 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
     _fetchSummaryStats();
   }
 
-  // Helper to get date range consistent for both Chart and Summary
-  Map<String, int?> _getDateRange() {
-    DateTime now = DateTime.now();
-    int? startMillis;
-    int? endMillis;
+  Future<int> _fetchRobustCount({
+    required String collectionName,
+    required String dateField,
+    required String idField,
+    required String nameField,
+    required String? projectId,
+    required String? projectName,
+    List<String>? statusList,
+    String? statusField,
+  }) async {
+    // Base Query Builder
+    Query buildQuery(String field, String value) {
+      Query query = FirebaseFirestore.instance.collection(collectionName);
 
-    if (selectedTimePeriod == 'Hours') {
-      DateTime startOfDay = DateTime(now.year, now.month, now.day);
-      startMillis = startOfDay.millisecondsSinceEpoch;
-      // End of day (next day start)
-      endMillis =
-          startOfDay.add(const Duration(days: 1)).millisecondsSinceEpoch;
-    } else if (selectedTimePeriod == 'Days') {
-      // Last 7 Days
-      DateTime end = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).add(const Duration(days: 1));
-      DateTime start = end.subtract(const Duration(days: 7));
-      startMillis = start.millisecondsSinceEpoch;
-      endMillis = end.millisecondsSinceEpoch;
-    } else if (selectedTimePeriod == 'Weeks') {
-      // Last 6 Weeks
-      DateTime end = DateTime(
-        now.year,
-        now.month,
-        now.day,
-      ).add(const Duration(days: 1));
-      DateTime start = end.subtract(const Duration(days: 6 * 7));
-      startMillis = start.millisecondsSinceEpoch;
-      endMillis = end.millisecondsSinceEpoch;
-    } else if (selectedTimePeriod == 'Years') {
-      // Last 6 Years
-      DateTime end = DateTime(now.year + 1, 1, 1);
-      DateTime start = DateTime(now.year - 5, 1, 1);
-      startMillis = start.millisecondsSinceEpoch;
-      endMillis = end.millisecondsSinceEpoch;
+      if (_startDate != null && _endDate != null) {
+        int startMillis = _startDate!.millisecondsSinceEpoch;
+        int endMillis = _endDate!.millisecondsSinceEpoch;
+        query = query
+            .where(dateField, isGreaterThanOrEqualTo: startMillis)
+            .where(dateField, isLessThan: endMillis);
+      }
+
+      query = query.where(field, isEqualTo: value);
+
+      if (statusList != null && statusList.isNotEmpty && statusField != null) {
+        query = query.where(statusField, whereIn: statusList);
+      }
+      return query;
     }
 
-    return {'start': startMillis, 'end': endMillis};
+    if (projectId != null) {
+      try {
+        final idQuery = buildQuery(idField, projectId);
+        final idSnapshot = await idQuery.count().get();
+        final idCount = idSnapshot.count ?? 0;
+        if (idCount > 0) return idCount;
+      } catch (e) {
+        // Fallback
+      }
+    }
+
+    if (projectName != null && projectName.isNotEmpty) {
+      try {
+        final nameQuery = buildQuery(nameField, projectName);
+        final nameSnapshot = await nameQuery.count().get();
+        return nameSnapshot.count ?? 0;
+      } catch (e) {
+        // Ignore
+      }
+    }
+
+    return 0;
   }
 
   Future<void> _fetchSummaryStats() async {
@@ -104,31 +201,6 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
         return;
       }
 
-      Query baseQuery = FirebaseFirestore.instance.collection(collectionName);
-
-      // 1. Filter by Project
-      if (_selectedProjectId != null) {
-        // Try ID first if possible or fallback logic (simplifying here to match chart logic mostly)
-        // For robust consistency, we'll try ID query.
-        // (If we wanted to be super robust we'd replicate the try-catch for name fallback here too,
-        // but let's assume if ID is set, it's valid from the dropdown)
-        baseQuery = baseQuery.where('ProjectId', isEqualTo: _selectedProjectId);
-      }
-
-      // 2. Filter by Date
-      final range = _getDateRange();
-      if (range['start'] != null) {
-        baseQuery = baseQuery
-            .where('Date', isGreaterThanOrEqualTo: range['start'])
-            .where('Date', isLessThan: range['end']);
-      }
-
-      // 3. Execute counts
-      // Total
-      AggregateQuerySnapshot totalSnap = await baseQuery.count().get();
-      int total = totalSnap.count ?? 0;
-
-      // Qualified
       final qualifiedStatus = [
         'new',
         'followup',
@@ -137,12 +209,53 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
         'negotiation',
         'prospect',
       ];
-      AggregateQuerySnapshot qualifiedSnap =
-          await baseQuery
-              .where('Status', whereIn: qualifiedStatus)
-              .count()
-              .get();
-      int qualified = qualifiedSnap.count ?? 0;
+
+      int total = 0;
+      int qualified = 0;
+
+      if (_selectedProjectId != null) {
+        // Project Specific - Use Robust Logic
+        total = await _fetchRobustCount(
+          collectionName: collectionName,
+          dateField: 'Date',
+          idField: 'ProjectId',
+          nameField: 'Project',
+          projectId: _selectedProjectId,
+          projectName: _selectedProjectName,
+        );
+
+        qualified = await _fetchRobustCount(
+          collectionName: collectionName,
+          dateField: 'Date',
+          idField: 'ProjectId',
+          nameField: 'Project',
+          projectId: _selectedProjectId,
+          projectName: _selectedProjectName,
+          statusField: 'Status',
+          statusList: qualifiedStatus,
+        );
+      } else {
+        // All Projects
+        Query baseQuery = FirebaseFirestore.instance.collection(collectionName);
+        if (_startDate != null && _endDate != null) {
+          baseQuery = baseQuery
+              .where(
+                'Date',
+                isGreaterThanOrEqualTo: _startDate!.millisecondsSinceEpoch,
+              )
+              .where('Date', isLessThan: _endDate!.millisecondsSinceEpoch);
+        }
+
+        AggregateQuerySnapshot totalSnap = await baseQuery.count().get();
+        total = totalSnap.count ?? 0;
+
+        AggregateQuerySnapshot qualifiedSnap =
+            await baseQuery
+                .where('Status', whereIn: qualifiedStatus)
+                .count()
+                .get();
+        qualified = qualifiedSnap.count ?? 0;
+      }
 
       if (mounted) {
         setState(() {
@@ -232,6 +345,44 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
     }
   }
 
+  Future<Map<String, dynamic>> _getRobustFilterParams(
+    String collectionName,
+    DateTime? start,
+    DateTime? end,
+  ) async {
+    // We do not cache this result because the best strategy (ID vs Name) might depend on
+    // data quality for the specific date range, and we want to align with ProjectCard behavior.
+
+    try {
+      // Test ID Query WITH DATE
+      // The failure usually happens when checking ID + Date range if index missing.
+      Query q = FirebaseFirestore.instance
+          .collection(collectionName)
+          .where('ProjectId', isEqualTo: _selectedProjectId);
+
+      if (start != null && end != null) {
+        q = q
+            .where('Date', isGreaterThanOrEqualTo: start.millisecondsSinceEpoch)
+            .where('Date', isLessThan: end.millisecondsSinceEpoch);
+      }
+
+      final snap = await q.limit(1).get();
+
+      // If we find data with ID, stick with ID.
+      if (snap.docs.isNotEmpty) {
+        return {'field': 'ProjectId', 'value': _selectedProjectId};
+      }
+
+      // If ID found nothing, we fall back to Name (just like ProjectCardItem does),
+      // in case the data is stored with Name but not ID or inconsistent.
+    } catch (e) {
+      debugPrint("⚠️ ID Query failed (likely index), falling back to Name: $e");
+    }
+
+    // Fallback default
+    return {'field': 'Project', 'value': _selectedProjectName};
+  }
+
   Future<void> _fetchChartData() async {
     if (!mounted) return;
     setState(() => _isLoadingChart = true);
@@ -254,70 +405,79 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
       List<double> dataPoints = [];
       double maxCount = 0;
 
-      DateTime now = DateTime.now();
+      DateTime start =
+          _startDate ?? DateTime.now().subtract(const Duration(days: 7));
+      DateTime end = _endDate ?? DateTime.now().add(const Duration(days: 1));
+      Duration duration = end.difference(start);
 
       // Prepare Buckets
       List<Map<String, dynamic>> buckets = [];
 
-      if (selectedTimePeriod == 'Hours') {
-        // 4-hour intervals: 0-4, 4-8, 8-12, 12-16, 16-20, 20-24
-        DateTime startOfDay = DateTime(now.year, now.month, now.day);
-        for (int i = 0; i < 6; i++) {
-          DateTime start = startOfDay.add(Duration(hours: i * 4));
-          DateTime end = start.add(const Duration(hours: 4));
-          String label = "${start.hour.toString().padLeft(2, '0')}:00";
+      if (duration.inHours <= 48) {
+        // Hourly buckets (4-hour blocks if > 24h, or 1h if < 24h? - Stick to 4h for density or 1h for precision)
+        // Original logic was 4-hour blocks for 'Today'. Let's do 4-hour blocks or 3-hour.
+        // If it's a single day, 4-hour blocks = 6 points. Nice.
+        int stepHours = 4;
+        if (duration.inHours <= 24) stepHours = 3;
+
+        DateTime current = start;
+        while (current.isBefore(end)) {
+          DateTime bucketEnd = current.add(Duration(hours: stepHours));
+          if (bucketEnd.isAfter(end)) bucketEnd = end;
+
+          String label = "${current.hour.toString().padLeft(2, '0')}:00";
           buckets.add({
-            'start': start.millisecondsSinceEpoch,
-            'end': end.millisecondsSinceEpoch,
+            'start': current.millisecondsSinceEpoch,
+            'end': bucketEnd.millisecondsSinceEpoch,
             'label': label,
           });
+          current = bucketEnd;
         }
-        // Last label
-        buckets.add({
-          'start': null,
-          'end': null,
-          'label': "24:00",
-          'isLabelOnly': true,
-        });
-      } else if (selectedTimePeriod == 'Days') {
-        // Last 7 Days
-        for (int i = 6; i >= 0; i--) {
-          DateTime date = now.subtract(Duration(days: i));
-          DateTime start = DateTime(date.year, date.month, date.day);
-          DateTime end = start.add(const Duration(days: 1));
+      } else if (duration.inDays <= 8) {
+        // Daily Buckets (For "Last 7 Days" or shorter)
+        DateTime current = DateTime(start.year, start.month, start.day);
+        DateTime targetEnd = DateTime(end.year, end.month, end.day);
+        if (end.hour > 0 || end.minute > 0)
+          targetEnd = targetEnd.add(Duration(days: 1));
 
-          String dayLabel = _getWeekday(date.weekday);
+        while (current.isBefore(targetEnd) && current.isBefore(end)) {
+          DateTime bucketEnd = current.add(const Duration(days: 1));
+          // If we overshoot actual end, that's fine for query, but logic usually aligns to day boundaries.
+
+          String label = _getWeekday(
+            current.weekday,
+          ); // Or format date? date is better for longer periods.
+          if (duration.inDays > 7) {
+            label = "${current.day}/${current.month}";
+          }
 
           buckets.add({
-            'start': start.millisecondsSinceEpoch,
-            'end': end.millisecondsSinceEpoch,
-            'label': dayLabel,
+            'start': current.millisecondsSinceEpoch,
+            'end': bucketEnd.millisecondsSinceEpoch,
+            'label': label,
           });
+          current = bucketEnd;
         }
-      } else if (selectedTimePeriod == 'Weeks') {
-        // Last 6 Weeks
-        for (int i = 5; i >= 0; i--) {
-          // Approximate weeks
-          DateTime end = now.subtract(Duration(days: i * 7));
-          DateTime start = end.subtract(const Duration(days: 7));
+      } else {
+        // Weekly or Monthly
+        // Let's do Weekly for now roughly
+        // Weekly or Monthly
+        // Let's do Weekly for now roughly
+        DateTime current = start;
+        int safetyBreak = 0;
+        while (current.isBefore(end)) {
+          safetyBreak++;
+          if (safetyBreak > 100) {
+            debugPrint("⚠️ Max buckets reached. Truncating chart data.");
+            break;
+          }
+          DateTime bucketEnd = current.add(const Duration(days: 7));
           buckets.add({
-            'start': start.millisecondsSinceEpoch,
-            'end': end.millisecondsSinceEpoch,
-            'label': "W${6 - i}",
+            'start': current.millisecondsSinceEpoch,
+            'end': bucketEnd.millisecondsSinceEpoch,
+            'label': "${current.day}/${current.month}",
           });
-        }
-      } else if (selectedTimePeriod == 'Years') {
-        // Last 6 Years including current
-        int currentYear = now.year;
-        for (int i = 5; i >= 0; i--) {
-          int year = currentYear - i;
-          DateTime start = DateTime(year, 1, 1);
-          DateTime end = DateTime(year + 1, 1, 1);
-          buckets.add({
-            'start': start.millisecondsSinceEpoch,
-            'end': end.millisecondsSinceEpoch,
-            'label': year.toString(),
-          });
+          current = bucketEnd;
         }
       }
 
@@ -328,26 +488,16 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
       dynamic filterValue;
 
       if (_selectedProjectId != null) {
-        // Robust Check: Try ID first
-        try {
-          // Just verifying index or existence
-          /* await FirebaseFirestore.instance
-              .collection(collectionName)
-              .where('ProjectId', isEqualTo: _selectedProjectId)
-              .limit(1)
-              .get(); */
-          filterField = 'ProjectId';
-          filterValue = _selectedProjectId;
-        } catch (e) {
-          debugPrint("⚠️ ID Query failed for Chart, falling back to Name: $e");
-          filterField = 'Project'; // Name field
-          filterValue = _selectedProjectName;
-        }
+        Map<String, dynamic> filterParams = await _getRobustFilterParams(
+          collectionName,
+          _startDate,
+          _endDate,
+        );
+        filterField = filterParams['field'];
+        filterValue = filterParams['value'];
       }
 
       for (var bucket in buckets) {
-        if (bucket['isLabelOnly'] == true) continue;
-
         int s = bucket['start'];
         int e = bucket['end'];
 
@@ -372,21 +522,18 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
       int resultIndex = 0;
       for (var bucket in buckets) {
         labels.add(bucket['label']);
-        if (bucket['isLabelOnly'] == true) {
-          dataPoints.add(0.0);
-        } else {
-          double count = results[resultIndex].toDouble();
-          dataPoints.add(count);
-          if (count > maxCount) maxCount = count;
-          resultIndex++;
-        }
+        double count = results[resultIndex].toDouble();
+        dataPoints.add(count);
+        if (count > maxCount) maxCount = count;
+        resultIndex++;
       }
 
       // Adjust max for aesthetics
-      if (maxCount == 0)
+      if (maxCount == 0) {
         maxCount = 10;
-      else
+      } else {
         maxCount = maxCount * 1.2;
+      }
 
       if (mounted) {
         setState(() {
@@ -397,15 +544,6 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
     } catch (e) {
       debugPrint("Error fetching chart data: $e");
       _setEmptyChartData();
-    }
-  }
-
-  void _setEmptyChartData() {
-    if (mounted) {
-      setState(() {
-        _chartData = {'labels': [], 'data': [], 'max': 100.0};
-        _isLoadingChart = false;
-      });
     }
   }
 
@@ -430,305 +568,13 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
     }
   }
 
-  void _toggleDropdown() {
-    if (_isDropdownOpen) {
-      _closeDropdown();
-    } else {
-      _openDropdown();
+  void _setEmptyChartData() {
+    if (mounted) {
+      setState(() {
+        _chartData = {'labels': [], 'data': [], 'max': 100.0};
+        _isLoadingChart = false;
+      });
     }
-  }
-
-  void _openDropdown() {
-    _overlayEntry = _createOverlayEntry();
-    Overlay.of(context).insert(_overlayEntry!);
-    setState(() {
-      _isDropdownOpen = true;
-    });
-  }
-
-  void _closeDropdown() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
-    setState(() {
-      _isDropdownOpen = false;
-    });
-  }
-
-  OverlayEntry _createOverlayEntry() {
-    return OverlayEntry(
-      builder:
-          (context) => GestureDetector(
-            onTap: _closeDropdown,
-            behavior: HitTestBehavior.translucent,
-            child: Stack(
-              children: [
-                CompositedTransformFollower(
-                  link: _layerLink,
-                  showWhenUnlinked: false,
-                  targetAnchor: Alignment.bottomRight,
-                  followerAnchor: Alignment.topRight,
-                  offset: const Offset(0, 8),
-                  child: TweenAnimationBuilder<double>(
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOut,
-                    tween: Tween(begin: 0.0, end: 1.0),
-                    builder: (context, value, child) {
-                      return Transform.scale(
-                        scale: 0.95 + (0.05 * value),
-                        alignment: Alignment.topRight,
-                        child: Opacity(opacity: value, child: child),
-                      );
-                    },
-                    child: Material(
-                      elevation: 8,
-                      borderRadius: BorderRadius.circular(12),
-                      color: Colors.white,
-                      child: IntrinsicWidth(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.15),
-                                blurRadius: 20,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                // Hours
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTimePeriod = 'Hours';
-                                    });
-                                    _closeDropdown();
-                                    _fetchChartData();
-                                    _fetchSummaryStats();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 14,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          selectedTimePeriod == 'Hours'
-                                              ? const Color(
-                                                0xFF2C9F6E,
-                                              ).withOpacity(0.08)
-                                              : Colors.transparent,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        if (selectedTimePeriod == 'Hours')
-                                          const Icon(
-                                            Icons.check,
-                                            color: Color(0xFF2C9F6E),
-                                            size: 18,
-                                          )
-                                        else
-                                          const SizedBox(width: 18),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          'Hours',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight:
-                                                selectedTimePeriod == 'Hours'
-                                                    ? FontWeight.w600
-                                                    : FontWeight.w500,
-                                            color:
-                                                selectedTimePeriod == 'Hours'
-                                                    ? const Color(0xFF2C9F6E)
-                                                    : const Color(0xFF1F1F1F),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                // Days
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTimePeriod = 'Days';
-                                    });
-                                    _closeDropdown();
-                                    _fetchChartData();
-                                    _fetchSummaryStats();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 14,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          selectedTimePeriod == 'Days'
-                                              ? const Color(
-                                                0xFF2C9F6E,
-                                              ).withOpacity(0.08)
-                                              : Colors.transparent,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        if (selectedTimePeriod == 'Days')
-                                          const Icon(
-                                            Icons.check,
-                                            color: Color(0xFF2C9F6E),
-                                            size: 18,
-                                          )
-                                        else
-                                          const SizedBox(width: 18),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          'Days',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight:
-                                                selectedTimePeriod == 'Days'
-                                                    ? FontWeight.w600
-                                                    : FontWeight.w500,
-                                            color:
-                                                selectedTimePeriod == 'Days'
-                                                    ? const Color(0xFF2C9F6E)
-                                                    : const Color(0xFF1F1F1F),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                // Weeks
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTimePeriod = 'Weeks';
-                                    });
-                                    _closeDropdown();
-                                    _fetchChartData();
-                                    _fetchSummaryStats();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 14,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          selectedTimePeriod == 'Weeks'
-                                              ? const Color(
-                                                0xFF2C9F6E,
-                                              ).withOpacity(0.08)
-                                              : Colors.transparent,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        if (selectedTimePeriod == 'Weeks')
-                                          const Icon(
-                                            Icons.check,
-                                            color: Color(0xFF2C9F6E),
-                                            size: 18,
-                                          )
-                                        else
-                                          const SizedBox(width: 18),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          'Weeks',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight:
-                                                selectedTimePeriod == 'Weeks'
-                                                    ? FontWeight.w600
-                                                    : FontWeight.w500,
-                                            color:
-                                                selectedTimePeriod == 'Weeks'
-                                                    ? const Color(0xFF2C9F6E)
-                                                    : const Color(0xFF1F1F1F),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                                // Years
-                                InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      selectedTimePeriod = 'Years';
-                                    });
-                                    _closeDropdown();
-                                    _fetchChartData();
-                                    _fetchSummaryStats();
-                                  },
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 14,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color:
-                                          selectedTimePeriod == 'Years'
-                                              ? const Color(
-                                                0xFF2C9F6E,
-                                              ).withOpacity(0.08)
-                                              : Colors.transparent,
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        if (selectedTimePeriod == 'Years')
-                                          const Icon(
-                                            Icons.check,
-                                            color: Color(0xFF2C9F6E),
-                                            size: 18,
-                                          )
-                                        else
-                                          const SizedBox(width: 18),
-                                        const SizedBox(width: 12),
-                                        Text(
-                                          'Years',
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            fontWeight:
-                                                selectedTimePeriod == 'Years'
-                                                    ? FontWeight.w600
-                                                    : FontWeight.w500,
-                                            color:
-                                                selectedTimePeriod == 'Years'
-                                                    ? const Color(0xFF2C9F6E)
-                                                    : const Color(0xFF1F1F1F),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _closeDropdown();
-    super.dispose();
   }
 
   @override
@@ -896,50 +742,38 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
                           ),
                       ],
                     ),
-                    // Dropdown Time Period Selector
-                    CompositedTransformTarget(
-                      link: _layerLink,
-                      child: GestureDetector(
-                        onTap: _toggleDropdown,
-                        child: Container(
-                          height: 36,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color:
-                                  _isDropdownOpen
-                                      ? const Color(0xFF2C9F6E)
-                                      : const Color(
-                                        0xFF2C9F6E,
-                                      ).withOpacity(0.3),
-                              width: _isDropdownOpen ? 2 : 1.5,
+                    // Date Filter Selector
+                    GestureDetector(
+                      onTap: _showFilterBottomSheet,
+                      child: Container(
+                        height: 36,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: const Color(0xFF2C9F6E).withOpacity(0.3),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              _selectedFilter,
+                              style: const TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: Color(0xFF2C9F6E),
+                              ),
                             ),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                selectedTimePeriod,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF2C9F6E),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              AnimatedRotation(
-                                duration: const Duration(milliseconds: 200),
-                                turns: _isDropdownOpen ? 0.5 : 0,
-                                child: const Icon(
-                                  Icons.keyboard_arrow_down_rounded,
-                                  color: Color(0xFF2C9F6E),
-                                  size: 18,
-                                ),
-                              ),
-                            ],
-                          ),
+                            const SizedBox(width: 8),
+                            const Icon(
+                              Icons.keyboard_arrow_down_rounded,
+                              color: Color(0xFF2C9F6E),
+                              size: 18,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -966,12 +800,106 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
                       ),
                     );
                   },
-                  child: _buildLineChart(key: ValueKey(selectedTimePeriod)),
+                  child: _buildLineChart(key: ValueKey(_selectedFilter)),
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showFilterBottomSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder:
+          (context) => Container(
+            height: MediaQuery.of(context).size.height * 0.60,
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            child: Column(
+              children: [
+                const SizedBox(height: 8),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Text(
+                      "Select Period",
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _buildOptionItem("All Dates", Icons.calendar_view_week),
+                _buildOptionItem("Today", Icons.today),
+                _buildOptionItem("Previous Day", Icons.history),
+                _buildOptionItem("Last 7 Days", Icons.date_range),
+                _buildOptionItem("Last 30 Days", Icons.date_range),
+                _buildOptionItem("Last Month", Icons.calendar_month),
+              ],
+            ),
+          ),
+    );
+  }
+
+  Widget _buildOptionItem(String label, IconData icon) {
+    bool isSelected = _selectedFilter == label;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedFilter = label;
+        });
+        _applyFilter(label);
+        Navigator.pop(context);
+        _fetchData();
+      },
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: const Color(0xFFE8F8F0),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: const Color(0xFF2C9F6E), size: 20),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle, color: Color(0xFF2C9F6E), size: 20)
+            else
+              const Icon(Icons.circle_outlined, color: Colors.grey, size: 20),
+          ],
+        ),
       ),
     );
   }
@@ -1085,7 +1013,7 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
   Widget _buildFeaturesBar() {
     return Container(
       color: const Color(0xFF134044),
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
