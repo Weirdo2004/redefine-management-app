@@ -27,7 +27,7 @@ import 'services/auth_service.dart';
 import 'utils/project_style.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized properlyfg
+  WidgetsFlutterBinding.ensureInitialized(); // Ensures Flutter is initialized
 
   try {
     await Firebase.initializeApp(

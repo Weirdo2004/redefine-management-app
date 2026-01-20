@@ -437,8 +437,9 @@ class _ProjectSampleScreenState extends State<ProjectSampleScreen> {
         // Daily Buckets (For "Last 7 Days" or shorter)
         DateTime current = DateTime(start.year, start.month, start.day);
         DateTime targetEnd = DateTime(end.year, end.month, end.day);
-        if (end.hour > 0 || end.minute > 0)
+        if (end.hour > 0 || end.minute > 0) {
           targetEnd = targetEnd.add(Duration(days: 1));
+        }
 
         while (current.isBefore(targetEnd) && current.isBefore(end)) {
           DateTime bucketEnd = current.add(const Duration(days: 1));
